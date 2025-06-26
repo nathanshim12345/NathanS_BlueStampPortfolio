@@ -100,6 +100,12 @@ One of the best parts about Github is that you can view how other people set up 
 # Starter Project - Retro Arcade Console
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/lbEyTJAkzWc?si=9pJWD1YZEUp0lTTe" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 # Description 
-blah blah blah
+  My starter project was the Retro Arcade Console, and I chose it because there were only two options and the console seemed somewhat more fun. It was my first time soldering, and the project really helped as there were many joints to solder. I learned many soldering skills such as a through hole joint, soldeirng wires, stripping wires, and de-soldering. The console has a couple games such as tetris and a bad version of galaga. The 4 buttons consisting of up, down, left, and right on the left are the actual controls, while the up and down button are used for things such as selecting or firing. The two big LED matrices act as the screens, and there is also an LED scoreboard at the top. The console is also powered by usb or three AA batteries.
+
+# Challenges 
+  One challenge was that when I tried to power my console with batteries, It wouldn't turn on at all. I checked my wires and I realized that during my soldering process, I had accidentally burned a part of the ground wire, which wouldn't allow it to turn on. So I had to cut the wire to take out the burnt part, and then strip the wire. After soldering the wire back together and using a heat shrink, the console worked perfectly fine through battery power. Then the batteries died. I will use the skills that I learnt from my starter project and apply it to my intensive project, the Wrist Rehab Device.
+  
+  
 
