@@ -12,7 +12,6 @@ You should comment out all portions of your portfolio that you have not complete
 
 **Replace the BlueStamp logo below with an image of yourself and your completed project. Follow the guide [here](https://tomcam.github.io/least-github-pages/adding-images-github-pages-site.html) if you need help.**
 
-![Headstone Image](Adobe Express - file.jpg)
   
 # Final Milestone
 
@@ -42,17 +41,23 @@ For your second milestone, explain what you've worked on since your previous mil
 
 # First Milestone
 
-**Don't forget to replace the text below with the embedding for your milestone video. Go to Youtube, click Share -> Embed, and copy and paste the code to replace what's below.**
-
 <iframe width="560" height="315" src="https://www.youtube.com/embed/UryxP8tovaY?si=vhKdE8WHcJufKPs5" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-My first milestone was to connect the flex sensor to the esp32 (main controlling unit), and also add threshold values. The code I'd have to make is that when the threshold is exceeded by bending the sensor, the LED and piezo buzzer that I connected would beep and turn on. The flex sensor is a big resistor, and bending it to a certain degree changes the resistance values. Conductive ink sits on the top of the flex sensor, and when it is bent, the ink outside of the bend is stretched, leading to increased resistance. This is what changed the actual number values that were output by the sensor. I printed these flex sensor values to find my threshold for the LED and buzzer. When the flex sensor is straight, it outputs a value of 1800, and when bending to a degree the number increases or decreases. Since I planned to use the flex sensor for detecting bend in only one direction, I only need one threshold. I set my LED and buzzer threshold at 2400. The code allows it so that once the flex sensor threshold is exceeded, the led and buzzer status is set to HIGH which turns it on, and in the other case, they are both set to LOW (see code below).
+# Description
+As a part of my first milestone and learning experience, I decided to make a mini project using the arduino to figure out some basic coding in C++. I made a little sequence of lights that acted light traffic lights, with decently accurate time delays to replicated real life traffic lights. In the code, the leds that I used work of a digital signal to turn it on (HIGH) or off (LOW). The code digitalWrite signals these on and offs (see code below). I also used some 220 ohm resistors as these were the best fit from the Law of Ohm calculations. The arduino charged 5 volts, and the leds current value was 0.02, so the right resistor to use was near 250 ohms. The close option was 220, so thats what I decided to use. 
+
+![Headstone Image](Adobe Express - file.jpg)
+Figure# - Traffic light arduino project
+
+My first milestone was to connect the flex sensor to the esp32 (main controlling unit), and also add threshold values. The code I'd have to make is that when the threshold is exceeded by bending the sensor, the LED and piezo buzzer that I connected would beep and turn on. The flex sensor is a big resistor, and bending it to a certain degree changes the resistance values. Conductive ink sits on the top of the flex sensor, and when it is bent, the ink outside of the bend is stretched, leading to increased resistance. This is what changed the actual number values that were output by the sensor. I printed these flex sensor values to find my threshold for the LED and buzzer. When the flex sensor is straight, it outputs a value of 1800, and when bending to a degree the number increases or decreases. Since I planned to use the flex sensor for detecting bend in only one direction, I only need one threshold. I set my LED and buzzer threshold at 2400. The code allows it so that once the flex sensor threshold is exceeded, the led and buzzer status is set to HIGH which turns it on, and in the other case, they are both set to LOW (see code below). 
 
 ![image](https://github.com/user-attachments/assets/8f77114c-049b-442f-a3d8-8aeb1de83724)
 figure# - Flex sensor diagram
 
+# Challenges
 Some challenges that I faced were connecting things to the esp32 and the breadboard. The breadboard layout was confusing at first, as I didn't really understand how the electricity path flowed throughout the board. Another challenge was connecting the flex sensor. The flex sensor works off a voltage divider, which is a small circuit that that reduces voltage to a lower level, dividing input voltage into smaller outputs. I had to search some online schematics that showed me how to connect the flex sensor to the esp32. I also tried connecting the LSM6DS3+LIS3MDL (accel,gyro and magnometer), but I realized that I would also have to connect the codes and find more thresholds, so I saved that for the next milestone. 
 
+# Next Steps
 My next plan is to connect the accelerometer to my esp32, and also get the threshold values for that sensor. As of now, I downloaded a code from the library that lets my LSM6DS3+LIS3MDL sensor give me acceleration and angular velocity data for the x,y and z axis. I plan on using some of the these values as threshold for the next step. The flex sensor will sit on the top of my wrist, regulating the up and down motions, while the LSM6DS3+LIS3MDL will regulate side to side motions on my wrist.
 # Schematics 
 ![image](https://github.com/user-attachments/assets/50e9d166-e03b-494d-adb5-1d321a094b3b)
@@ -88,6 +93,33 @@ One of the best parts about Github is that you can view how other people set up 
   I will use the skills that I learnt from my starter project and apply it to my intensive project, the Wrist Rehab Device. Since I dont know how to use an Arduino or how to code, I'm going to start on learning the basics first. Then I will start to work on my intensive project.  
 
 # Appendix
+Traffic Light code
+```c++
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(12,OUTPUT);
+  pinMode(11,OUTPUT);
+  pinMode(10,OUTPUT);
+}
+
+  
+void loop() {
+  // put your main code here, to run repeatedly:
+  digitalWrite(12,HIGH);
+  delay(6000);
+  digitalWrite(12,LOW);
+  digitalWrite(10,HIGH);
+  delay(2000);
+  digitalWrite(10,LOW);
+  digitalWrite(11,HIGH);
+  delay(1000);
+  digitalWrite(11,LOW);
+
+}
+
+```
+
 Milestone 1 code
 ```c++
 
