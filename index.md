@@ -46,49 +46,17 @@ For your second milestone, explain what you've worked on since your previous mil
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/UryxP8tovaY?si=vhKdE8WHcJufKPs5" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-My first milestone was to connect the flex sensor to the esp32 (main controlling unit), and also add threshold values so when bending the flex sensor, the LED and piezo buzzer that I connected would beep and turn on. The flex sensor is a big resistor, and bending it to a certain degree changes the resistance values. Conductive ink sits on the top of the flex sensor, and when it is bent, the ink outside of the bend is stretched, leading to increased resistance. This is what changed the actual number values that were output by the sensor. I printed these flex sensor values to find my threshold for the LED and buzzer. When the flex sensor is straight, it outputs a value of 1800, and when bending to a degree the number increases or decreases. Since I planned to use the flex sensor for detecting bend in only one direction, I only need one threshold. I set my LED and buzzer threshold at 2400. 
+My first milestone was to connect the flex sensor to the esp32 (main controlling unit), and also add threshold values. The code I'd have to make is that when the threshold is exceeded by bending the sensor, the LED and piezo buzzer that I connected would beep and turn on. The flex sensor is a big resistor, and bending it to a certain degree changes the resistance values. Conductive ink sits on the top of the flex sensor, and when it is bent, the ink outside of the bend is stretched, leading to increased resistance. This is what changed the actual number values that were output by the sensor. I printed these flex sensor values to find my threshold for the LED and buzzer. When the flex sensor is straight, it outputs a value of 1800, and when bending to a degree the number increases or decreases. Since I planned to use the flex sensor for detecting bend in only one direction, I only need one threshold. I set my LED and buzzer threshold at 2400. The code allows it so that once the flex sensor threshold is exceeded, the led and buzzer status is set to HIGH which turns it on, and in the other case, they are both set to LOW (see code below).
 
 ![image](https://github.com/user-attachments/assets/8f77114c-049b-442f-a3d8-8aeb1de83724)
+figure# - Flex sensor diagram
 
 Some challenges that I faced were connecting things to the esp32 and the breadboard. The breadboard layout was confusing at first, as I didn't really understand how the electricity path flowed throughout the board. Another challenge was connecting the flex sensor. The flex sensor works off a voltage divider, which is a small circuit that that reduces voltage to a lower level, dividing input voltage into smaller outputs. I had to search some online schematics that showed me how to connect the flex sensor to the esp32. I also tried connecting the LSM6DS3+LIS3MDL (accel,gyro and magnometer), but I realized that I would also have to connect the codes and find more thresholds, so I saved that for the next milestone. 
 
 My next plan is to connect the accelerometer to my esp32, and also get the threshold values for that sensor. As of now, I downloaded a code from the library that lets my LSM6DS3+LIS3MDL sensor give me acceleration and angular velocity data for the x,y and z axis. I plan on using some of the these values as threshold for the next step. The flex sensor will sit on the top of my wrist, regulating the up and down motions, while the LSM6DS3+LIS3MDL will regulate side to side motions on my wrist.
 # Schematics 
 ![image](https://github.com/user-attachments/assets/50e9d166-e03b-494d-adb5-1d321a094b3b)
-
-# Code
-
-```c++
-#include <MadgwickAHRS.h>
-
-const int flexPin = A6; 
-const int ledPin = 23; 
-const int buzzer = 19;
-
-void setup() { 
-  Serial.begin(115200);
-  pinMode(ledPin,OUTPUT);
-  pinMode(buzzer,OUTPUT);
-} 
-
-void loop(){ 
-  int flexValue;
-  flexValue = analogRead(flexPin);
-  Serial.print("sensor: ");
-  Serial.println(flexValue);
- 
-  if(flexValue>2400) {
-     digitalWrite(ledPin,HIGH);
-     digitalWrite(buzzer,HIGH);
-  }
-  else {
-    digitalWrite(ledPin,LOW);
-    digitalWrite(buzzer,LOW);
-  }
-  delay(20);
-  
-} 
-```
+Figure # - Flex sensor connected with led and buzzer to esp32
 
 # Bill of Materials
 Here's where you'll list the parts in your project. To add more rows, just copy and paste the example rows below.
@@ -119,3 +87,35 @@ One of the best parts about Github is that you can view how other people set up 
 # Next Steps
   I will use the skills that I learnt from my starter project and apply it to my intensive project, the Wrist Rehab Device. Since I dont know how to use an Arduino or how to code, I'm going to start on learning the basics first. Then I will start to work on my intensive project.  
 
+# Appendix
+Milestone 1 code
+```c++
+
+const int flexPin = A6;           //Flex sensor pin to A6 (esp32)
+const int ledPin = 23;            //Led pin to 23 (esp32)
+const int buzzer = 19;            //buzzer pin to 19 (esp32)
+
+void setup() { 
+  Serial.begin(115200);           //baud rate to 115200
+  pinMode(ledPin,OUTPUT);         //set led as an output
+  pinMode(buzzer,OUTPUT);         //set buzzer pin as an output
+} 
+
+void loop(){ 
+  int flexValue;                  //flex sensor numerical outputs set as integers
+  flexValue = analogRead(flexPin);//read flex sensor
+  Serial.print("sensor: ");
+  Serial.println(flexValue);
+ 
+  if(flexValue>2400) {            //flex value threshold
+     digitalWrite(ledPin,HIGH);   //turns on led if threshold exceeds
+     digitalWrite(buzzer,HIGH);   //turns on buzzer if threshold exceeds
+  }
+  else {
+    digitalWrite(ledPin,LOW);     //nothing happens if threshold is not exceeded
+    digitalWrite(buzzer,LOW);
+  }
+  delay(20);
+  
+} 
+```
