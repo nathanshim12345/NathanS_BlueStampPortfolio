@@ -46,39 +46,46 @@ For your second milestone, explain what you've worked on since your previous mil
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/UryxP8tovaY?si=vhKdE8WHcJufKPs5" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-For your first milestone, describe what your project is and how you plan to build it. You can include:
-- An explanation about the different components of your project and how they will all integrate together
-- Technical progress you've made so far
-- Challenges you're facing and solving in your future milestones
-- What your plan is to complete your project
+My first milestone was to connect the flex sensor to the esp32 (main controlling unit), and also add threshold values so when bending the flex sensor, the LED and piezo buzzer that I connected would beep and turn on. The flex sensor is a big resistor, and bending it to a certain degree changes the resistance values. I printed these flex sensor values to find my threshold for the LED and buzzer. When the flex sensor is straight, it outputs a value of 1800, and when bending to a degree the number increases or decreases. Since I planned to use the flex sensor for detecting bend in only one direction, I only need one threshold. I set my LED and buzzer threshold at 2400. 
 
+Some challenges that I faced were connecting things to the esp32 and the breadboard. The breadboard layout was confusing at first, as I didn't really understand how the electricity path flowed throughout the board. Another challenge was connecting the flex sensor. The flex sensor works off a voltage divider, which is a small circuit that that reduces voltage to a lower level, dividing input voltage into smaller outputs. I had to search some online schematics that showed me how to connect the flex sensor to the esp32. I also tried connecting the LSM6DS3+LIS3MDL (accel,gyro and magnometer), but I realized that I would also have to connect the codes and find more thresholds, so I saved that for the next milestone. 
+
+My next plan is to connect the accelerometer to my esp32, and also get the threshold values for that sensor. As of now, I downloaded a code from the library that lets my LSM6DS3+LIS3MDL sensor give me acceleration and angular velocity data for the x,y and z axis. I plan on using some of the these values as threshold for the next step. The flex sensor will sit on the top of my wrist, regulating the up and down motions, while the LSM6DS3+LIS3MDL will regulate side to side motions on my wrist.
 # Schematics 
-Here's where you'll put images of your schematics. [Tinkercad](https://www.tinkercad.com/blog/official-guide-to-tinkercad-circuits) and [Fritzing](https://fritzing.org/learning/) are both great resoruces to create professional schematic diagrams, though BSE recommends Tinkercad becuase it can be done easily and for free in the browser. 
-![Adobe Express - file](https://github.com/user-attachments/assets/0f6c08f3-62b0-4e40-bfaa-d5252d06410a)
+![image](https://github.com/user-attachments/assets/50e9d166-e03b-494d-adb5-1d321a094b3b)
+
 # Code
-Here's where you'll put your code. The syntax below places it into a block of code. Follow the guide [here]([url](https://www.markdownguide.org/extended-syntax/)) to learn how to customize it to your project needs. 
 
 ```c++
-void setup() {
-  // put your setup code here, to run once:
-  pinMode(12,OUTPUT);
-  pinMode(11,OUTPUT);
-  pinMode(10,OUTPUT);
-}
+#include <MadgwickAHRS.h>
 
+const int flexPin = A6; 
+const int ledPin = 23; 
+const int buzzer = 19;
+
+void setup() { 
+  Serial.begin(115200);
+  pinMode(ledPin,OUTPUT);
+  pinMode(buzzer,OUTPUT);
+} 
+
+void loop(){ 
+  int flexValue;
+  flexValue = analogRead(flexPin);
+  Serial.print("sensor: ");
+  Serial.println(flexValue);
+ 
+  if(flexValue>2400) {
+     digitalWrite(ledPin,HIGH);
+     digitalWrite(buzzer,HIGH);
+  }
+  else {
+    digitalWrite(ledPin,LOW);
+    digitalWrite(buzzer,LOW);
+  }
+  delay(20);
   
-void loop() {
-  // put your main code here, to run repeatedly:
-  digitalWrite(12,HIGH);
-  delay(6000);
-  digitalWrite(12,LOW);
-  digitalWrite(10,HIGH);
-  delay(2000);
-  digitalWrite(10,LOW);
-  digitalWrite(11,HIGH);
-  delay(1000);
-  digitalWrite(11,LOW);
-}
+} 
 ```
 
 # Bill of Materials
