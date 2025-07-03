@@ -48,7 +48,7 @@ Figure# - Accelerometer data
 
 I originally planned on using these values to put a threshold on them and also make the LED and piezo buzzer. However, when I put the accelerometer on my wrist, I realized that the accelerometer values had minimal change when I moved my wrist side to side. Accelerometer values weren't going to work for my side to side motion on the wrist. So, I downloaded the Madgwick filter from the library, and took a code off of it. This Madgwick filter code changed my acceleration x,y and z data into roll pitch and yaw data. Roll, pitch and yaw are usually used for aviation (see figure below). 
 
-![image](https://github.com/user-attachments/assets/271d71ba-285c-4371-a6dc-600008052756)
+![image](https://github.com/user-attachments/assets/1c562fa3-2452-40d5-8d3b-734b37a9df4b)
 Figure# - Roll, pitch, and yaw diagram
 
 
