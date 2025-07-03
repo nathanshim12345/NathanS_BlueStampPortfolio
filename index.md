@@ -36,7 +36,7 @@ For your second milestone, explain what you've worked on since your previous mil
 - Previous challenges you faced that you overcame
 - What needs to be completed before your final milestone
 # LSM6DS3+LIS3MDL
-The LSM6DS3+LIS3MDL is a sensor with an accelerometer, gyroscope, and a magnometer. Ill add more later Vrinda 😠
+The LSM6DS3+LIS3MDL is a sensor with an accelerometer, gyroscope, and a magnometer.
 
 
 
@@ -129,7 +129,7 @@ One of the best parts about Github is that you can view how other people set up 
   I will use the skills that I learnt from my starter project and apply it to my intensive project, the Wrist Rehab Device. Since I dont know how to use an Arduino or how to code, I'm going to start on learning the basics first. Then I will start to work on my intensive project.  
 
 # Appendix
-Traffic Light code
+# Traffic Light code
 ```c++
 
 void setup() {
@@ -156,7 +156,7 @@ void loop() {
 
 ```
 
-Milestone 1 code
+# Milestone 1 code
 ```c++
 
 const int flexPin = A6;           //Flex sensor pin to A6 (esp32)
@@ -188,7 +188,7 @@ void loop(){
 } 
 ```
 
-Milestone 2 Average code 
+# Milestone 2 Average code 
 ```c++
 #include <Wire.h>
 #include <Adafruit_LSM6DS3TRC.h>
@@ -270,5 +270,5 @@ void loop() {
   }
   
   delay(50); // ~100Hz
-}
+} 😏
 ```
