@@ -44,11 +44,13 @@ The LSM6DS3+LIS3MDL is a sensor with an accelerometer, gyroscope, and a magnomet
 For the sake of not typing out "LSM6DS3+LIS3MDL" every single time, from now on I will just call it "accelerometer" or "module". For my second milestone, I first connected my accelerometer to my esp32. Then I downloaded a bunch of libraries for the module. It took a couple times because there were many libraries for different versions of the accelerometer. But after finding the correct code off the library, I was able to upload the code and get my values for the accelerometer. The accelerometer had values z,y and z, and it also had gyro data, which measured angular velocity. However, I didn't use gyro data as the movment of my wrist would be relatively slow, and velocity values wouldn't have varied enough in movement for me to use them. When I rotate the accelerometer in a certain way, the values change. When stationary, the z value always hovers at around 9.8 due to gravity.
 
 ![image](https://github.com/user-attachments/assets/499fa274-1a19-4c1f-aa17-6cb33e9ccb12)
+
 Figure# - Accelerometer data
 
 I originally planned on using these values to put a threshold on them and also make the LED and piezo buzzer. However, when I put the accelerometer on my wrist, I realized that the accelerometer values had minimal change when I moved my wrist side to side. Accelerometer values weren't going to work for my side to side motion on the wrist. So, I downloaded the Madgwick filter from the library, and took a code off of it. This Madgwick filter code changed my acceleration x,y and z data into roll pitch and yaw data. Roll, pitch and yaw are usually used for aviation (see figure below). 
 
 ![image](https://github.com/user-attachments/assets/1c562fa3-2452-40d5-8d3b-734b37a9df4b)
+
 Figure# - Roll, pitch, and yaw diagram
 
 
