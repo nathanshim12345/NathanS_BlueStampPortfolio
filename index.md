@@ -35,10 +35,12 @@ For your second milestone, explain what you've worked on since your previous mil
 - What has been surprising about the project so far
 - Previous challenges you faced that you overcame
 - What needs to be completed before your final milestone
-# LSM6DS3+LIS3MDL
-The LSM6DS3 + LIS3MDL is a sensor combo that includes an accelerometer, a gyroscope, and a magnetometer. The accelerometer measures movement or tilt (like if something is going up, down, or sideways). The gyroscope measures rotation and angular velocity (like turning or spinning). The magnetometer works like a digital compass, as it can sense direction based on the Earth's magnetic field. All together, these three sensors help track motion and orientation in three axes. 
 
+  
 # Description
+Before working with LSM6DS3 + LIS3MD, I learned about how it worked. The LSM6DS3 + LIS3MDL is a sensor combo that includes an accelerometer, a gyroscope, and a magnetometer. The accelerometer measures movement or tilt (like if something is going up, down, or sideways). The gyroscope measures rotation and angular velocity (like turning or spinning). The magnetometer works like a digital compass, as it can sense direction based on the Earth's magnetic field. All together, these three sensors help track motion and orientation in three axes. Inside the accelerometer there’s a tiny mass called a proof mass that moves a little when the device moves. Because of inertia, this mass resists changes in motion. When the device accelerates, a force (F) acts on the mass, and according to Newton’s second law F = ma, this force is equal to the mass times its acceleration. This force causes the proof mass to push or pull on a spring. This movement changes an electrical property in the sensor, like resistance, which the sensor turns into an electrical signal. By measuring that signal, we can tell how much the device is accelerating and in what direction.
+
+
 For the sake of not typing out "LSM6DS3+LIS3MDL" every single time, from now on I will just call it "accelerometer" or "module". For my second milestone, I first connected my accelerometer to my esp32. Then I downloaded a bunch of libraries for the module. It took a couple times because there were many codes for different versions of the accelerometer. But after finding the correct code off the library, I was able to upload the code and get my values for the accelerometer. The accelerometer had values x, y and z, and it also had gyro data, which measured angular velocity. However, I didn't use gyro data as the movment of my wrist would be relatively slow, and velocity values wouldn't have varied enough in movement for me to use them. When I rotate the accelerometer in a certain way, the values change. When stationary, the z value always hovers at around 9.8 m/s^2 due to gravity.
 
 ![image](https://github.com/user-attachments/assets/499fa274-1a19-4c1f-aa17-6cb33e9ccb12)
