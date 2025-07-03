@@ -35,12 +35,23 @@ For your second milestone, explain what you've worked on since your previous mil
 - What has been surprising about the project so far
 - Previous challenges you faced that you overcame
 - What needs to be completed before your final milestone
-# Description
-For my second milestone, I first connected my accelerometer to my esp32. Then I downloaded a bunch of libraries for the module. It took a couple times because there were many libraries for different versions of the accelerometer. But after finding the correct code off the library, I was able to upload the code and get my values for the accelerometer. The accelerometer had values z,y and z, and it also had gyro data, which measured angular velocity. However, I didn't use gyro data as the movment of my wrist would be relatively slow, and velocity values wouldn't have varied enough in movement for me to use them. When I rotate the accelerometer in a certain way, the values change. When stationary, the z value always hovers at around 9.8 due to gravity.
+# LSM6DS3+LIS3MDL
+The LSM6DS3+LIS3MDL is a sensor with an accelerometer, gyroscope, and a magnometer. Ill add more later Vrinda 😠
 
-insert pic of accel data
+
+
+# Description
+For the sake of not typing out "LSM6DS3+LIS3MDL" every single time, from now on I will just call it "accelerometer" or "module". For my second milestone, I first connected my accelerometer to my esp32. Then I downloaded a bunch of libraries for the module. It took a couple times because there were many libraries for different versions of the accelerometer. But after finding the correct code off the library, I was able to upload the code and get my values for the accelerometer. The accelerometer had values z,y and z, and it also had gyro data, which measured angular velocity. However, I didn't use gyro data as the movment of my wrist would be relatively slow, and velocity values wouldn't have varied enough in movement for me to use them. When I rotate the accelerometer in a certain way, the values change. When stationary, the z value always hovers at around 9.8 due to gravity.
+
+![image](https://github.com/user-attachments/assets/499fa274-1a19-4c1f-aa17-6cb33e9ccb12)
+Figure# - Accelerometer data
 
 I originally planned on using these values to put a threshold on them and also make the LED and piezo buzzer. However, when I put the accelerometer on my wrist, I realized that the accelerometer values had minimal change when I moved my wrist side to side. Accelerometer values weren't going to work for my side to side motion on the wrist. So, I downloaded the Madgwick filter from the library, and took a code off of it. This Madgwick filter code changed my acceleration x,y and z data into roll pitch and yaw data. Roll, pitch and yaw are usually used for aviation (see figure below). 
+
+![image](https://github.com/user-attachments/assets/271d71ba-285c-4371-a6dc-600008052756)
+Figure# - Roll, pitch, and yaw diagram
+
+
 
 For my side to side motion, yaw was the perfect fit as it calculated the angles when I rotated my wrist. At the stable position with the accelerometer facing straight, the angle measured 360 degrees. I wanted my side to side movement to trigger the buzzer and LED after a certain angle that my wrist went past. So I first set two thresholds, one when my wrist went right and the other for when my wrist went left. I set my first value at 40 deg to the left, and 340 deg for the right, which is 20 deg off from center position. When my wrist angle went past these certain angles, the LED would turn on and the buzzer would beep. One thing to note was that my data values for yaw were drifiting heavily; the values were constantly decreasing even without any movement on the accelerometer. Realizing that there would always be some drifting for my yaw values, completely scratched the idea of having thresholds on my accelerometer. 
 
@@ -50,14 +61,18 @@ I repurposed my accelerometer to graph data whenever I fully rotated my wrist. I
 A big challenge that I faced in this milestone is that my yaw values kept on drifting, even in the stationary position. At first I thought this was because of the built in compass. The accelerometer module calculates yaw using the built in compass and magnometer. However, in a room full of magnetically conductive materials, these calculations may have been off. So in my code, I told arduino to not use the compass, in hopes that the yaw data would stop drifting. After doing some research, I learned that no matter what, due to certain limitations within the sensor or environment, there would always be some drift in yaw values. The only real way to fix it was to press the reboot button on my esp32 So, I repurposed my accelerometer. Also because I realized that I wouldn't really be moving my wrist from side to side. Another challenge that I faced was incorrect graph readings. When I first printed my data values for roll and pitch, I didn't use csv, and the words "roll" and "pitch" were also printed. This lead to unstable graphs, and only one line of value, instead of two for roll and pitch (see figure# below). So, I altered the print lines in the code to only print numerical values, seperated by commas. This time when I made the graph, it had two lines for roll and pitch, but it was very unstable. So I altered my code again. This time, I created a loop that took the average of 5 readings for roll and pitch, then gave me the value of the averages (see Milstone 2 Average code, Appendix). While this graph did look more stable, the lables on the y axis didn't make sense. When I rotated my wrist, I was making big angular changes in position. Since roll and pitch measures angles, there should have been pretty big spacing on the y axis. So, I also scratched this code. I went back to my first problem, when my graph was unstable. I changed the sample frequency to 20 milliseconds, and the delay time to 50 milliseconds. The delay time (50) times the sample frequency (20) was 1000 milliseconds, which made for a more stable graph. Now the angle readings were also correct. Every time I completed a rotation, the values would spike at a consistent height. 
 
 <p float="left">
-  <img src="https://github.com/user-attachments/assets/248c6972-4578-457c-9108-50c756b31698" width="300" />
+  <img src="https://github.com/user-attachments/assets/248c6972-4578-457c-9108-50c756b31698" width="275" />
 
-  <img src="https://github.com/user-attachments/assets/8e424ad8-e848-4ded-b81c-6fb16fa4dd61" width="300" /> 
+  <img src="https://github.com/user-attachments/assets/8e424ad8-e848-4ded-b81c-6fb16fa4dd61" width="275" /> 
 
-  <img src="https://github.com/user-attachments/assets/89acac75-edd3-47c3-8ecf-11cdb2cf70c4" width="300" /> 
+  <img src="https://github.com/user-attachments/assets/89acac75-edd3-47c3-8ecf-11cdb2cf70c4" width="275" /> 
 
 </p>
 
+Figure# 
+Graph 1 - First unstable graph WITHOUT csv
+Graph 2 - Second graph WITH csv and averaging
+Graph 3 - Third graph WITH csv and NO averaging
 # First Milestone
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/UryxP8tovaY?si=vhKdE8WHcJufKPs5" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
@@ -71,7 +86,7 @@ Figure# - Traffic light arduino project
 My first milestone was to connect the flex sensor to the esp32 (main controlling unit), and also add threshold values. The code I'd have to make is that when the threshold is exceeded by bending the sensor, the LED and piezo buzzer that I connected would beep and turn on. The flex sensor is a big resistor, and bending it to a certain degree changes the resistance values. Conductive ink sits on the top of the flex sensor, and when it is bent, the ink outside of the bend is stretched, leading to increased resistance. This is what changed the actual number values that were output by the sensor (see figure below). I printed these flex sensor values to find my threshold for the LED and buzzer. When the flex sensor is straight, it outputs a value of 1800, and when bending to a degree the number increases or decreases. Since I planned to use the flex sensor for detecting bend in only one direction, I only need one threshold. I set my LED and buzzer threshold at 2400. The code allows it so that once the flex sensor threshold is exceeded, the led and buzzer status is set to HIGH which turns it on, and in the other case, they are both set to LOW (see code below, Milestone 1 code, Appendix). 
 
 ![image](https://github.com/user-attachments/assets/8f77114c-049b-442f-a3d8-8aeb1de83724)
-figure# - Flex sensor diagram
+Figure# - Flex sensor diagram
 
 # Challenges
 Some challenges that I faced were connecting things to the esp32 and the breadboard. The breadboard layout was confusing at first, as I didn't really understand how the electricity path flowed throughout the board. Another challenge was connecting the flex sensor. The flex sensor works off a voltage divider, which is a small circuit that that reduces voltage to a lower level, dividing input voltage into smaller outputs. I had to search some online schematics that showed me how to connect the flex sensor to the esp32. I also tried connecting the LSM6DS3+LIS3MDL (accel,gyro and magnometer), but I realized that I would also have to connect the codes and find more thresholds, so I saved that for the next milestone.
