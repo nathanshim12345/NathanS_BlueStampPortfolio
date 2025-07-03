@@ -39,7 +39,7 @@ For your second milestone, explain what you've worked on since your previous mil
 The LSM6DS3 + LIS3MDL is a sensor combo that includes an accelerometer, a gyroscope, and a magnetometer. The accelerometer measures movement or tilt (like if something is going up, down, or sideways). The gyroscope measures rotation and angular velocity (like turning or spinning). The magnetometer works like a digital compass, as it can sense direction based on the Earth's magnetic field. All together, these three sensors help track motion and orientation in three axes. 
 
 # Description
-For the sake of not typing out "LSM6DS3+LIS3MDL" every single time, from now on I will just call it "accelerometer" or "module". For my second milestone, I first connected my accelerometer to my esp32. Then I downloaded a bunch of libraries for the module. It took a couple times because there were many codes for different versions of the accelerometer. But after finding the correct code off the library, I was able to upload the code and get my values for the accelerometer. The accelerometer had values x,y and z, and it also had gyro data, which measured angular velocity. However, I didn't use gyro data as the movment of my wrist would be relatively slow, and velocity values wouldn't have varied enough in movement for me to use them. When I rotate the accelerometer in a certain way, the values change. When stationary, the z value always hovers at around 9.8 due to gravity.
+For the sake of not typing out "LSM6DS3+LIS3MDL" every single time, from now on I will just call it "accelerometer" or "module". For my second milestone, I first connected my accelerometer to my esp32. Then I downloaded a bunch of libraries for the module. It took a couple times because there were many codes for different versions of the accelerometer. But after finding the correct code off the library, I was able to upload the code and get my values for the accelerometer. The accelerometer had values x, y and z, and it also had gyro data, which measured angular velocity. However, I didn't use gyro data as the movment of my wrist would be relatively slow, and velocity values wouldn't have varied enough in movement for me to use them. When I rotate the accelerometer in a certain way, the values change. When stationary, the z value always hovers at around 9.8 m/s^2 due to gravity.
 
 ![image](https://github.com/user-attachments/assets/499fa274-1a19-4c1f-aa17-6cb33e9ccb12)
 
@@ -74,6 +74,7 @@ Graph 3 - Third graph WITH csv and NO averaging
 
 # Next Steps
 Next, I will sew my accelerometer on my wrist compression sleeve so I don't have to keep holding on to it, and so the movement of the accelerometer is more natural. I'm also going to figure out the bluetooth on my esp32 because I want to display some certain texts on the serial monitor. The prints will be things such as when I complete one wrist rotation, the monitor will print out the amount of rotations I've done. 
+
 # First Milestone
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/UryxP8tovaY?si=vhKdE8WHcJufKPs5" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
@@ -93,7 +94,7 @@ Figure# - Flex sensor diagram
 Some challenges that I faced were connecting things to the esp32 and the breadboard. The breadboard layout was confusing at first, as I didn't really understand how the electricity path flowed throughout the board. Another challenge was connecting the flex sensor. The flex sensor works off a voltage divider, which is a small circuit that that reduces voltage to a lower level, dividing input voltage into smaller outputs. I had to search some online schematics that showed me how to connect the flex sensor to the esp32. I also tried connecting the LSM6DS3+LIS3MDL (accel,gyro and magnometer), but I realized that I would also have to connect the codes and find more thresholds, so I saved that for the next milestone.
 
 # Next Steps
-My next plan is to connect the accelerometer to my esp32, and also get the threshold values for that sensor. As of now, I downloaded a code from the library that lets my LSM6DS3+LIS3MDL sensor give me acceleration and angular velocity data for the x,y and z axis. I plan on using some of the these values as threshold for the next step. The flex sensor will sit on the top of my wrist, regulating the up and down motions, while the LSM6DS3+LIS3MDL will regulate side to side motions on my wrist.
+My next plan is to connect the accelerometer to my esp32, and also get the threshold values for that sensor. As of now, I downloaded a code from the library that lets my LSM6DS3+LIS3MDL sensor give me acceleration and angular velocity data for the x, y and z axis. I plan on using some of the these values as threshold for the next step. The flex sensor will sit on the top of my wrist, regulating the up and down motions, while the LSM6DS3+LIS3MDL will regulate side to side motions on my wrist.
 # Schematics 
 ![image](https://github.com/user-attachments/assets/50e9d166-e03b-494d-adb5-1d321a094b3b)
 Figure # - Flex sensor connected with led and buzzer to esp32
@@ -189,7 +190,7 @@ void loop(){
 
 # Milestone 2 Average code 
 ```c++
-#include <Wire.h>
+#include <Wire.h>                             //inclue these from library
 #include <Adafruit_LSM6DS3TRC.h>
 #include <Adafruit_LIS3MDL.h>
 #include <MadgwickAHRS.h>
@@ -198,8 +199,8 @@ Adafruit_LSM6DS3TRC lsm6ds3trc;
 Adafruit_LIS3MDL lis3mdl = Adafruit_LIS3MDL();
 Madgwick filter;
 
-const float sampleFreq = 20.0;
-float average;
+const float sampleFreq = 20.0;                // sample frequency of 20 hertz
+float average;                
 float averagep;
 int  cnt=0;
 int  cntp=0;
@@ -222,27 +223,27 @@ void setup() {
 }
 
 void loop() {
-  sensors_event_t accel, gyro, temp;
+  sensors_event_t accel, gyro, temp;          //create events
   sensors_event_t mag;
 
-  lsm6ds3trc.getEvent(&accel, &gyro, &temp);
-  lis3mdl.getEvent(&mag);
+  lsm6ds3trc.getEvent(&accel, &gyro, &temp);  //read data from these
+  lis3mdl.getEvent(&mag);                     //read data from magnometer
 
-  float gx = gyro.gyro.x * 180.0 / PI;
+  float gx = gyro.gyro.x * 180.0 / PI;        //convert radians per sec to degress per sec
   float gy = gyro.gyro.y * 180.0 / PI;
   float gz = gyro.gyro.z * 180.0 / PI;
 
-  float ax = accel.acceleration.x / 9.80665;
+  float ax = accel.acceleration.x / 9.80665;  //convert acceleration from m/s^2 to G force
   float ay = accel.acceleration.y / 9.80665;
   float az = accel.acceleration.z / 9.80665;
 
   filter.update(gx, gy, gz, ax, ay, az, mag.magnetic.x, mag.magnetic.y, mag.magnetic.z);
 
-  float roll = filter.getRoll();
+  float roll = filter.getRoll();              //Get current roll and pitch values from sensor
   float pitch = filter.getPitch();
 
   
-    float sumr=sumr+roll;
+    float sumr=sumr+roll;                     //current sum = past sum + value of roll or pitch
   cnt=cnt+1;
 
   float sump=sump+pitch;
@@ -253,11 +254,11 @@ void loop() {
 
   // Serial Plotter format: label:value, separated by commas
 
-  if(cnt==4){
-    average=sumr/5;
-    Serial.print(" ");
+  if(cnt==4){                                //Set count limit to 4, start at 0
+    average=sumr/5;                          //After 5 counts, take average of sum
+    Serial.print(" ");                       //print average
     Serial.println(average);
-    cnt=0;
+    cnt=0;                                   //set count and sum back to 0
     sumr=0;
   }
   if(cntp==4){
@@ -269,5 +270,5 @@ void loop() {
   }
   
   delay(50); // ~100Hz
-} 😏
+} 
 ```
