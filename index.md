@@ -41,6 +41,7 @@ For your second milestone, explain what you've worked on since your previous mil
 Before working with LSM6DS3 + LIS3MD, I learned about how it worked. The LSM6DS3 + LIS3MDL is a sensor combo that includes an accelerometer, a gyroscope, and a magnetometer. The accelerometer measures movement or tilt (like if something is going up, down, or sideways). The gyroscope measures rotation and angular velocity (like turning or spinning). The magnetometer works like a digital compass, as it can sense direction based on the Earth's magnetic field. All together, these three sensors help track motion and orientation in three axes. Inside the accelerometer there’s a tiny mass called a proof mass that moves a little when the device moves. Because of inertia, this mass resists changes in motion. When the device accelerates, a force (F) acts on the mass, and according to Newton’s second law F = ma, this force is equal to the mass times its acceleration. This force causes the proof mass to push or pull on a spring. This movement changes an electrical property in the sensor, like resistance, which the sensor turns into an electrical signal. By measuring that signal, we can tell how much the device is accelerating and in what direction.
 
 ![image](https://github.com/user-attachments/assets/acc4e815-edb2-49d7-b2e6-0d4a5cb08871)
+
 Figure# - Accelerometer diagram
 
 For the sake of not typing out "LSM6DS3+LIS3MDL" every single time, from now on I will just call it "accelerometer" or "module". For my second milestone, I first connected my accelerometer to my esp32. Then I downloaded a bunch of libraries for the module. It took a couple times because there were many codes for different versions of the accelerometer. But after finding the correct code off the library, I was able to upload the code and get my values for the accelerometer. The accelerometer had values x, y and z, and it also had gyro data, which measured angular velocity. However, I didn't use gyro data as the movment of my wrist would be relatively slow, and velocity values wouldn't have varied enough in movement for me to use them. When I rotate the accelerometer in a certain way, the values change. When stationary, the z value always hovers at around 9.8 m/s^2 due to gravity.
@@ -73,7 +74,9 @@ A big challenge that I faced in this milestone is that my yaw values kept on dri
 
 Figure# - Graphs of roll and pitch, with time on the x axis and roll and pitch angles on the y axis
 Graph 1 - First unstable graph WITHOUT csv
+
 Graph 2 - Second graph WITH csv and averaging
+
 Graph 3 - Third graph WITH csv and NO averaging
 
 # Next Steps
@@ -87,11 +90,13 @@ Next, I will sew my accelerometer on my wrist compression sleeve so I don't have
 As a part of my first milestone and learning experience, I decided to make a mini project using the arduino to figure out some basic coding in C++. I made a little sequence of lights that acted light traffic lights, with decently accurate time delays to replicated real life traffic lights. In the code, the leds that I used work of a digital signal to turn it on (HIGH) or off (LOW). The code digitalWrite signals these on and offs (see code below, traffic light code, Appendix). I also used some 220 ohm resistors as these were the best fit from the Law of Ohm calculations. The arduino charged 5 volts, and the leds current value was 0.02, so the right resistor to use was near 250 ohms. The close option was 220, so thats what I decided to use. 
 
 ![Headstone Image](Adobe Express - file.jpg)
+
 Figure# - Traffic light arduino project
 
 My first milestone was to connect the flex sensor to the esp32 (main controlling unit), and also add threshold values. The code I'd have to make is that when the threshold is exceeded by bending the sensor, the LED and piezo buzzer that I connected would beep and turn on. The flex sensor is a big resistor, and bending it to a certain degree changes the resistance values. Conductive ink sits on the top of the flex sensor, and when it is bent, the ink outside of the bend is stretched, leading to increased resistance. This is what changed the actual number values that were output by the sensor (see figure below). I printed these flex sensor values to find my threshold for the LED and buzzer. When the flex sensor is straight, it outputs a value of 1800, and when bending to a degree the number increases or decreases. Since I planned to use the flex sensor for detecting bend in only one direction, I only need one threshold. I set my LED and buzzer threshold at 2400. The code allows it so that once the flex sensor threshold is exceeded, the led and buzzer status is set to HIGH which turns it on, and in the other case, they are both set to LOW. I used analog read because the flex sensor is connected to pinA6 on the esp32, which is an analog pin. When the sensor bends, the resistance changes, so voltage at the analog pin changes, and the analog read reads the data values.(see code below, Milestone 1 code, Appendix). 
 
 ![image](https://github.com/user-attachments/assets/8f77114c-049b-442f-a3d8-8aeb1de83724)
+
 Figure# - Flex sensor diagram
 
 # Challenges
@@ -101,6 +106,7 @@ Some challenges that I faced were connecting things to the esp32 and the breadbo
 My next plan is to connect the accelerometer to my esp32, and also get the threshold values for that sensor. As of now, I downloaded a code from the library that lets my LSM6DS3+LIS3MDL sensor give me acceleration and angular velocity data for the x, y and z axis. I plan on using some of the these values as threshold for the next step. The flex sensor will sit on the top of my wrist, regulating the up and down motions, while the LSM6DS3+LIS3MDL will regulate side to side motions on my wrist.
 # Schematics 
 ![image](https://github.com/user-attachments/assets/50e9d166-e03b-494d-adb5-1d321a094b3b)
+
 Figure # - Flex sensor connected with led and buzzer to esp32
 
 # Bill of Materials
