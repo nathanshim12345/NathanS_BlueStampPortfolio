@@ -30,13 +30,6 @@ For your final milestone, explain the outcome of your project. Key details to in
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/y3VAmNlER5Y" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
-For your second milestone, explain what you've worked on since your previous milestone. You can highlight:
-- Technical details of what you've accomplished and how they contribute to the final goal
-- What has been surprising about the project so far
-- Previous challenges you faced that you overcame
-- What needs to be completed before your final milestone
-
-  
 # Description
 Before working with LSM6DS3 + LIS3MD, I learned about how it worked. The LSM6DS3 + LIS3MDL is a sensor combo that includes an accelerometer, a gyroscope, and a magnetometer. The accelerometer measures movement or tilt (like if something is going up, down, or sideways). The gyroscope measures rotation and angular velocity (like turning or spinning). The magnetometer works like a digital compass, as it can sense direction based on the Earth's magnetic field. All together, these three sensors help track motion and orientation in three axes. Inside the accelerometer there’s a tiny mass called a proof mass that moves a little when the device moves. Because of inertia, this mass resists changes in motion. When the device accelerates, a force (F) acts on the mass, and according to Newton’s second law F = ma, this force is equal to the mass times its acceleration. This force causes the proof mass to push or pull on a spring. This movement changes an electrical property in the sensor, like resistance, which the sensor turns into an electrical signal. By measuring that signal, we can tell how much the device is accelerating and in what direction.
 
@@ -60,8 +53,16 @@ For my side to side motion, yaw was the perfect fit as it calculated the angles 
 
 I repurposed my accelerometer to graph data whenever I fully rotated my wrist. I wanted my wrist rehab device to track things like how many rotations someone has done or track the range of motion from a wrist. To make the graph from my accelerometer data values, I first changed my code. I took out all the thresholds, and replaced the code to first print out only roll and pitch. Since my yaw data kept drifitng, I just decided to not use it at all. I also decided to change my data outputs to CSV which is comma seperated variables. These comma seperated variables had no words, only numerical values seperated by commas, which would be easier to be plotted by a serial plotter. Then I downloaded a seperated serial monitor/plotter as the one on arduino was very laggy. When I first plotted the values, the graph was very unstable. After fixing this issue, the graph was working properly, with the roll and pitch values spiking whenever I rotated my wrist. 
 
+After graphing the roll and pitch properly, I decided to find thresholds for only the pitch, which is the up and down motion. For one exercise such as the wrist rotation, the pitch and roll goes up and down, but for an exercise like wrist flexing, the roll doesn't change and only the pitch goes up and down. For now, I decided to only find the pitch thresholds to be simple. I set the high pitch threshold at 20 degrees, and the low pitch threshold at -38 degrees. However, a wrist rotation or a flex motion too slow doesn't have much affect. So, I millis function and variables in order to start a timer when the pitch value hit the high threshold (refer to Milestone 2 Threshold and Counter Code, Appendix). If the time that is spent getting to the lower threshold from the higher threshold is greater than 1.75 seconds, that specific rotation won't count towards a repition. 
+
+I wanted a way to keep track of each repition that went above 20 deg and below -38 deg in the span of 1.75 seconds. So, in the code, I made a repCount variable to count how many reps of the wrist rotation or flex that I had done. The repCount starts at 0 and every rep, the count is increased by 1 untill 10. Then, I also added a set count. I used a setCount variable to keep track of sets. If the repCount hit 10, the repCount would be set back to 0, and the setCount would go up by one. After 3 sets, the setCount would be set back to 0, and the exercise would be complete. 
+
+Since measuring data or finding thresholds while the wrist was unstable or moving too much was not reliable, I added a calibration system to the wrist rehab monitor. I wanted the pitch to be relatively close to 0 when starting the exercises, so I put the calibration range to -2 to 2 degrees. If the wrist was in this position for pitch, I considered it safe enough to start exercising. I also put a time requierment of 3 seconds. The pitch data had to be at -2 to 2 for at least 3 seconds before the calibration process was complete. While it wasn't calibrated, the serial monitor prints out "Calibrating...", and when after the 3 seconds of calibration, the serial monitor starts printing the repCount and setCounts. 
+
 # Challenges
 A big challenge that I faced in this milestone is that my yaw values kept on drifting, even in the stationary position. At first I thought this was because of the built in compass. The accelerometer module calculates yaw using the built in compass and magnometer. However, in a room full of magnetically conductive materials, these calculations may have been off. So in my code, I told arduino to not use the compass, in hopes that the yaw data would stop drifting. After doing some research, I learned that no matter what, due to certain limitations within the sensor or environment, there would always be some drift in yaw values. The only real way to fix it was to press the reboot button on my esp32 So, I repurposed my accelerometer. Also because I realized that I wouldn't really be moving my wrist from side to side. Another challenge that I faced was incorrect graph readings. When I first printed my data values for roll and pitch, I didn't use csv, and the words "roll" and "pitch" were also printed. This lead to unstable graphs, and only one line of value, instead of two for roll and pitch (see figure# below). So, I altered the print lines in the code to only print numerical values, seperated by commas. This time when I made the graph, it had two lines for roll and pitch, but it was very unstable. So I altered my code again. This time, I created a loop that took the average of 5 readings for roll and pitch, then gave me the value of the averages (see Milstone 2 Average code, Appendix). While this graph did look more stable, the lables on the y axis didn't make sense. When I rotated my wrist, I was making big angular changes in position. Since roll and pitch measures angles, there should have been pretty big spacing on the y axis. So, I also scratched this code. I went back to my first problem, when my graph was unstable. I changed the sample frequency to 20 milliseconds, and the delay time to 50 milliseconds. The delay time (50) times the sample frequency (20) was 1000 milliseconds, which made for a more stable graph. Now the angle readings were also correct. Every time I completed a rotation, the values would spike at a consistent height. 
+
+Creating the calibration system was also a bit challenging because of the timer. I had to use the millis function and lots of variables to calculate the exact time. The inRangeStart timer starts counting as soon as the wrists position goes in the range of -2 to 2. For 3 seconds the wrist position must stay in this range. If at any point it exists the range, the inRangeStart timer will reset. This calibration system ensures that the tracking only starts when I'm at a consistent starting position.   
 
 <p float="left">
   <img src="https://github.com/user-attachments/assets/248c6972-4578-457c-9108-50c756b31698" width="275" />
@@ -80,7 +81,8 @@ Graph 2 - Second graph WITH csv and averaging
 Graph 3 - Third graph WITH csv and NO averaging
 
 # Next Steps
-Next, I will sew my accelerometer on my wrist compression sleeve so I don't have to keep holding on to it, and so the movement of the accelerometer is more natural. I'm also going to figure out the bluetooth on my esp32 because I want to display some certain texts on the serial monitor. The prints will be things such as when I complete one wrist rotation, the monitor will print out the amount of rotations I've done. 
+Next, I will sew my accelerometer on my wrist compression sleeve so I don't have to keep holding on to it, and so the movement of the accelerometer is more natural. I'm also going to figure out the bluetooth on my esp32 because I want to display some certain texts on the serial monitor on my phone, and having the esp32 always connect to the computer is a bit inconvenient.
+
 
 # First Milestone
 
@@ -281,4 +283,127 @@ void loop() {
   
   delay(50); // ~100Hz
 } 
+```
+
+# Milestone 2 Threshold and Counter Code
+```c++
+#include <Wire.h>
+#include <Adafruit_LSM6DS3TRC.h>
+#include <Adafruit_LIS3MDL.h>
+#include <MadgwickAHRS.h>
+
+Adafruit_LSM6DS3TRC lsm6ds3trc;
+Adafruit_LIS3MDL lis3mdl = Adafruit_LIS3MDL();
+Madgwick filter;
+
+const float sampleFreq = 20.0;
+
+unsigned long inRangeStart = 0;
+unsigned long repStart = 0;
+
+bool calibrated = false;
+bool waitingForDip = false;
+
+int repCount = 0;
+int setCount = 0;
+void setup() {
+  Serial.begin(115200);
+  while (!Serial) delay(10);
+
+  if (!lsm6ds3trc.begin_I2C()) {
+    Serial.println("Failed to find LSM6DS3TR-C!");
+    while (1) delay(10);
+  }
+
+  if (!lis3mdl.begin_I2C()) {
+    Serial.println("Failed to find LIS3MDL!");
+    while (1) delay(10);
+  }
+
+  filter.begin(sampleFreq);
+}
+
+void loop() {
+  sensors_event_t accel, gyro, temp;
+  sensors_event_t mag;
+
+  lsm6ds3trc.getEvent(&accel, &gyro, &temp);
+  lis3mdl.getEvent(&mag);
+
+  float gx = gyro.gyro.x * 180.0 / PI;
+  float gy = gyro.gyro.y * 180.0 / PI;
+  float gz = gyro.gyro.z * 180.0 / PI;
+
+  float ax = accel.acceleration.x / 9.80665;
+  float ay = accel.acceleration.y / 9.80665;
+  float az = accel.acceleration.z / 9.80665;
+
+  filter.update(gx, gy, gz, ax, ay, az, mag.magnetic.x, mag.magnetic.y, mag.magnetic.z);
+
+  float roll = filter.getRoll();
+  float pitch = filter.getPitch();
+
+  unsigned long currentTime = millis();
+
+  // Calibration Logic
+  if (!calibrated) {
+    if (pitch >= -2 && pitch <= 2) {                                      //range of the calibration zone
+      if (inRangeStart == 0) {                                            //check if timer is at 0
+        inRangeStart = currentTime;                                       //
+      } else if (currentTime - inRangeStart >= 3000) {                    //calibration finished after 3 seconds in range
+        calibrated = true;
+      }
+    } else {
+      inRangeStart = 0;                                                   //set timer back to 0 if exited range
+    }
+  }
+
+  
+  if (calibrated) {                                                       //check if its calibrated
+    if (!waitingForDip && pitch >= 20) {                                  //waiting for dip is false and pitch goes above 28
+      repStart = currentTime;                                             //rep time starts
+      waitingForDip = true;                                               //waiting for dip turned true
+    }
+
+    if (waitingForDip) {                                                  //check waiting for dip is true
+      if (pitch <= -38 && (currentTime - repStart <= 1750)) {             //if pitch goes under -38 in under 1.75 seconds
+        repCount++;                                                       //increase repCount
+        waitingForDip = false;                                            //set waiting for dip to false
+        if(repCount == 11){
+          setCount++;
+          repCount = 0;
+        }
+      } 
+  
+
+      
+      if (currentTime - repStart > 1750) {                                //if over 1.75 seconds
+        waitingForDip = false;                                            //reset waiting time
+      }
+    }
+  }
+
+
+  Serial.print(roll, 2);
+  Serial.print(", ");
+  Serial.print(pitch, 2);
+  Serial.print(", ");
+
+  if (!calibrated) {
+    Serial.println("Calibrating...");
+  } else {
+    Serial.print("reps: ");
+    Serial.print(repCount);
+    Serial.print(", ");
+    Serial.print("sets: ");
+    Serial.println(setCount);
+      if(setCount == 3){
+        Serial.println("Exercise Complete!");                             //print out when the exercise is complete
+        setCount=0;
+      }
+       
+  }
+  
+  delay(50);
+}
 ```
