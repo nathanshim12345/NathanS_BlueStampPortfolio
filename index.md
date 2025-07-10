@@ -28,7 +28,7 @@ For your final milestone, explain the outcome of your project. Key details to in
 
 **Don't forget to replace the text below with the embedding for your milestone video. Go to Youtube, click Share -> Embed, and copy and paste the code to replace what's below.**
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/y3VAmNlER5Y" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/zGtJvBaJgOA?si=yHCSrj1Uw0e5ISD-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 # Description
 Before working with LSM6DS3 + LIS3MD, I learned about how it worked. The LSM6DS3 + LIS3MDL is a sensor combo that includes an accelerometer, a gyroscope, and a magnetometer. The accelerometer measures movement or tilt (like if something is going up, down, or sideways). The gyroscope measures rotation and angular velocity (like turning or spinning). The magnetometer works like a digital compass, as it can sense direction based on the Earth's magnetic field. All together, these three sensors help track motion and orientation in three axes. Inside the accelerometer there’s a tiny mass called a proof mass that moves a little when the device moves. Because of inertia, this mass resists changes in motion. When the device accelerates, a force (F) acts on the mass, and according to Newton’s second law F = ma, this force is equal to the mass times its acceleration. This force causes the proof mass to push or pull on a spring. This movement changes an electrical property in the sensor, like resistance, which the sensor turns into an electrical signal. By measuring that signal, we can tell how much the device is accelerating and in what direction.
@@ -407,5 +407,71 @@ void loop() {
   }
   
   delay(50);
+}
+```
+
+# Milestone 3 Neopixel Code
+```c++
+#include <Adafruit_NeoPixel.h>
+
+#define PIN         13                                                      //lights to  pin 13 
+#define NUMPIXELS   6                                                       //number of lights
+#define FLEXPIN     34                                                      //
+#define FLEX_THRESHOLD 2400                                                 //flex threshold at 2400 for lights
+
+Adafruit_NeoPixel strip(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
+bool sequenceRunning = false;
+unsigned long lastStepTime = 0;                     
+int currentPixel = 0;
+
+void setup() {
+  Serial.begin(115200);
+  strip.begin();                                                 //wake up lights and prepare 
+  strip.show();                                                  //start with lights off
+}
+
+void loop() {
+  int flexValue = analogRead(FLEXPIN);                           //read flex sensor
+  Serial.print("Flex: ");
+  Serial.println(flexValue);
+
+  
+  if (flexValue > FLEX_THRESHOLD && !sequenceRunning) {         //if the threshold is exceed and the lights are not on,
+    sequenceRunning = true;                                     //sequence is turned on
+    currentPixel = 0;                                           
+    lastStepTime = millis();
+    strip.clear();
+  }
+
+  if (sequenceRunning) {
+    if (flexValue < FLEX_THRESHOLD) {
+      resetStrip();                                             //reset lights if flex sensor is released 
+      return;
+    }
+
+    if (millis() - lastStepTime >= 500 && currentPixel < NUMPIXELS) {     
+      strip.setPixelColor(currentPixel, strip.Color(0, 0, 255));          //set light to color blue
+      strip.show();                                                       //show color
+      currentPixel++;                                                     //next light
+      lastStepTime = millis();                                            //reset 0.5 second timer again
+    }
+
+    if (currentPixel == NUMPIXELS) {                                      //if the number of pixels reaches 6
+      strip.fill(strip.Color(0, 255, 0));                                 //set ALL lights color to green
+      strip.show();
+      delay(2000);                                          
+      resetStrip();                                                       //reset after two seconds
+    }       
+  }
+
+  delay(50);
+}
+
+void resetStrip() {
+  strip.clear();
+  strip.show();
+  sequenceRunning = false;
+  currentPixel = 0;
 }
 ```
