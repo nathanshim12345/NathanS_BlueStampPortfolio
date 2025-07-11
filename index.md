@@ -74,6 +74,7 @@ A big challenge that I faced in this milestone is that my yaw values kept on dri
 </p>
 
 Figure# - Graphs of roll and pitch, with time on the x axis and roll and pitch angles on the y axis
+
 Graph 1 - First unstable graph WITHOUT csv
 
 Graph 2 - Second graph WITH csv and averaging
