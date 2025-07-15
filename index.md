@@ -96,11 +96,11 @@ A big challenge that I faced in this milestone is that my yaw values kept on dri
 
 
 <p float="left">
-  <img src="https://github.com/user-attachments/assets/248c6972-4578-457c-9108-50c756b31698" width="250" />
+  <img src="https://github.com/user-attachments/assets/248c6972-4578-457c-9108-50c756b31698" width="230" />
 
-  <img src="https://github.com/user-attachments/assets/8e424ad8-e848-4ded-b81c-6fb16fa4dd61" width="250" /> 
+  <img src="https://github.com/user-attachments/assets/8e424ad8-e848-4ded-b81c-6fb16fa4dd61" width="230" /> 
 
-  <img src="https://github.com/user-attachments/assets/89acac75-edd3-47c3-8ecf-11cdb2cf70c4" width="250" /> 
+  <img src="https://github.com/user-attachments/assets/89acac75-edd3-47c3-8ecf-11cdb2cf70c4" width="230" /> 
 
 </p>
 
