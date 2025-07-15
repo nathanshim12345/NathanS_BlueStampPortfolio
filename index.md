@@ -23,8 +23,8 @@ Another part that I added was that if the flex sensor went back under the thresh
 
 NeoPixels are  LEDs that are individually addressable, meaning each one contains a tiny circuit with red, green, and blue LEDs, along with a driver chip. This allows each LED to be controlled independently in terms of color and brightness. The neopixel LEDS use a single digital pin on the microcontroller, which is enough to control the entire strip of LEDS. The microcontroller sends a stream of 24-bit data or 3 bytes for RGB, and each LED reads it before passing the rest down the line. This data transmission relies on precise timing, where the length of electrical pulses determines whether a bit is read as a 1 or a 0. Each LED decodes its information, updates its color, and then refreshes and passes on the data to the next LED, ensuring reliable communication across the entire LEDstrip.
 
-<img width="1666" height="1000" alt="image" src="https://github.com/user-attachments/assets/07838909-788d-48a8-bc04-703fac3c1d3e" />
-Figure 2 - Neopixel LED diagram. The middle circle is the driver chip
+<img width="1000" height="450" alt="image" src="https://github.com/user-attachments/assets/07838909-788d-48a8-bc04-703fac3c1d3e" />
+Figure 3 - Neopixel LED diagram. The middle circle is the driver chip
 
 ## Bluetooth User Interface
 
