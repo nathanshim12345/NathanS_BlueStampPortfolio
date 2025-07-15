@@ -10,7 +10,7 @@ You should comment out all portions of your portfolio that you have not complete
 **Replace the BlueStamp logo below with an image of yourself and your completed project. Follow the guide [here](https://tomcam.github.io/least-github-pages/adding-images-github-pages-site.html) if you need help.**
 
   
-# Final Milestone
+# Milestone 3
 
 **Don't forget to replace the text below with the embedding for your milestone video. Go to Youtube, click Share -> Embed, and copy and paste the code to replace what's below.**
 
@@ -22,14 +22,31 @@ For my final milestone, I decided to add bluetooth capabilites to my wrist rehab
 The flex sensor functions seemed relatively empty compared to the accelerometer, so I decided to turn that into another exercise tracker. Instead of alerting for improper posture, I decided that I would turn it into a tracker for holding my wrist at a certain position. To track the time that I was holding my wrist at a position, I decided to use neopixel light strip.. The idea was that after bending my wrist, the flex threshold would be exceeded, and then the neopixel lights would start to turn on one by one. I quickly soldered on the neopixel light strip to some wires and connected these wires to my breadboard. Then I downloaded the correct library for the lights and included them into the code. The main function of the lights were, when the flex threshold was exceeded, the sequence turned on. When it turned on, the first light would be set to blue, and using the same timer logic that I used for the calibration system, after 0.5 seconds the next light would also turn blue, and then the timer would reset and start back from 0. Now I had 6 lights on my light strip. After all 6 turned to blue, I changed the color so it would turn to green for 1 second. After 1 second, the lights all turn off and the sequence starts again.
 Another part that I added was that if the flex sensor went back under the threshold while the sequence was running, all the lights would turn off (refer to Milestone 3 Neopixel Code).
 
+## Neopixel LED Strips
+
+
+
+
 ## Bluetooth User Interface
 
 After this, I turned my attention back to the bluetooth serial on my phone. I wanted to make a little user interface system. Currently, the serial on my phone was printing all data values, like the flex sensor value, roll, pitch, reps, and sets. Instead of printing all of these at the same time, I wanted them to print one at a time if I entered little commands into the serial. So using booleans and if statements I organzied my code into this format. To start, I wrote a little code block to start the read and check if there was anything available to read using the BLE.available. Then, it reads the full command string up to a new line using BLE.readStringUntil('\n'). Now I added my conditions for my commands using the booleans. I used the command.equals to check if the string that I inputed into the serial monitor was the correct command. If it was the correct command, the corresponding boolean would be set to true, and all other booleans would be set to false. I used an if statment for the first command, then a series of else if statements for the rest of the commands (refer to Milestone 3 User Interface Code). 
 
-My first command was to display the menu when the string "menu" or "help" was typed into the phone serial. If it was typed, the BLE.print would display the menu. My menu consisted of the commands that a user could type into the serial for certain functions. The commands that I had were "calibrate", "start workout", "end workout", and "show angle". Each of the commands set a certain boolean to true, and all others to false. 
+My first command was to display the menu when the string "menu" or "help" was typed into the phone serial. If it was typed, the BLE.print would display the menu. My menu consisted of the commands that a user could type into the serial for certain functions. The commands that I had were "calibrate", "start workout", "end workout", and "show angle". Each of the commands set a certain boolean to true, and all others to false. The calibrate command started the calibration process. I also decided to change the wait time in the range from 3 seconds to 2.5 seconds, and the inactivity time from 15 seconds to 2 minutes. After calibration, the monitor was ready to start the workouts. The "start workout" shows the rep and set counter. At this point in time, my rep and set counter was printing every delay, and was lagging my phone. After a couple challenges, I was able to change to rep and set counter so that it would only print when it was updated. The "end workout" command turns off the rep and set counter, and displays a workout summary. The workout summary consists of a total amount of reps and sets that the user did during the workout. Displaying this screen was also a bit of challenge due to some placement errors in my code. Finally, the "show angle" command displays the pitch and flex sensor values, and I plan to change the flex sensor values into angular values later on. Now these commands are very specific to things like spaces or capital letters, so I added an or statement to each command, and made another command option ex. "start workout" or "start workout ". This space at the end ensured that even if the user typed in a space at the end (which is common if the phone autocorrects the word), the correct displays would still pop up. 
+
+# Challenges
+Some of the big challenges was creating the user interface and connecting the esp32 to the bluetooth. The concept was a little confusing at first, because of all the booleans and conditions. But after creating one condition for the calibrate function, I was able to create the rest of the conditions and start organizing my code into the specific conditions. Another obstacle I faced was how laggy my phone got when the rep and sets counter was printing. Due to how fast it was printing, it overloaded my serial monitor. So I decided to only print out the reps and sets if the rep or set count got updated. I created a new variable called prevRep. The idea was that I would set my repCount equal to the prevRep, and while this was true, my code wouldn't print out anything. But as soon as the repCount increased and was no longer equal to the prevRep value, the serial monitor would print the rep and set count once. The problem was I didn't know where to put my prevRep = repCount statement. After an hour of debugging, I finally realized that if I wanted my serial monitor to only print once, I would have to immediately set prevRep = repCount after the counts printed. So, I put the statement right after all the print functions, and the serial monitor finally printed out the counts only when they were updated. 
+
+Another challenge I faced was that even when I typed the "end workout" command in my serial monitor, the display screen wouldn't pop up and the rep and set counts would keep going (this is before I fixed the counters to update only once). At first, I set the boolean that starts the counters to false within the loop that set my end workout boolean to true, but that didn't really do anything. And then I saw that my end workout loop was actually inside my loop that started the workout and counters. At the beginning of my void loop, the statements that turned on my boolean to true or false set one thing to true, and all others to false. Because my end workout loop was within my start workout counters loop, the end workout would always be set to false. So I moved the end workout loop outside of the start workout loop, and it was working. If I typed in "end workout" the display would stop showing the counters for the workout, and display the total number of reps and sets. 
+
+# Next Steps
+The next steps are to start putting all the components together, and solder the stuff onto a pcb. Also, I will start to add modifications to my wrist rehab monitor. 
 
 
 
+
+# Schematics
+
+<img width="867" height="563" alt="Screenshot 2025-07-15 at 9 56 20 AM" src="https://github.com/user-attachments/assets/4cfdf0cf-3267-40b4-a43c-aa6406b001ea" />
 
 # Second Milestone
 
@@ -93,7 +110,7 @@ Next, I will sew my accelerometer on my wrist compression sleeve so I don't have
 
 # Schematics
 
-<img width="877" alt="Screenshot 2025-07-11 at 9 39 25 AM" src="https://github.com/user-attachments/assets/bdd54a55-443c-4fa0-9b0a-66d2b1a13f47" />
+<img width="946" height="543" alt="Screenshot 2025-07-15 at 9 56 31 AM" src="https://github.com/user-attachments/assets/c523b0ca-2f3f-4cf4-a101-7d74ced67101" />
 
 # First Milestone
 
