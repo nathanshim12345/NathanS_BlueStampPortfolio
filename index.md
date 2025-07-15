@@ -23,7 +23,7 @@ Another part that I added was that if the flex sensor went back under the thresh
 
 NeoPixels are  LEDs that are individually addressable, meaning each one contains a tiny circuit with red, green, and blue LEDs, along with a driver chip. This allows each LED to be controlled independently in terms of color and brightness. The neopixel LEDS use a single digital pin on the microcontroller, which is enough to control the entire strip of LEDS. The microcontroller sends a stream of 24-bit data or 3 bytes for RGB, and each LED reads it before passing the rest down the line. This data transmission relies on precise timing, where the length of electrical pulses determines whether a bit is read as a 1 or a 0. Each LED decodes its information, updates its color, and then refreshes and passes on the data to the next LED, ensuring reliable communication across the entire LEDstrip.
 
-<img width="1250" height="542" alt="image" src="https://github.com/user-attachments/assets/07838909-788d-48a8-bc04-703fac3c1d3e" />
+<img width="1666" height="722" alt="image" src="https://github.com/user-attachments/assets/07838909-788d-48a8-bc04-703fac3c1d3e" />
 Figure # - Neopixel LED diagram. The middle circle is the driver chip
 
 ## Bluetooth User Interface
@@ -50,9 +50,7 @@ Another challenge I faced was that even when I typed the "end workout" command i
 Figure # - New serial monitor with workout summary and fixed counters
 
 # Next Steps
-The next steps are to start putting all the components together, and solder the stuff onto a pcb. Also, I will start to add modifications to my wrist rehab monitor. 
-
-
+The next steps are to start putting all the components together, and solder the stuff onto a pcb. Also, I will start to add modifications to my wrist rehab monitor. I was thinking of adding a vibration component that vibrates if bad posture is detected. It will only vibrate if the other functions like the workout or calibration are not on.
 
 
 # Schematics
@@ -98,11 +96,11 @@ A big challenge that I faced in this milestone is that my yaw values kept on dri
 
 
 <p float="left">
-  <img src="https://github.com/user-attachments/assets/248c6972-4578-457c-9108-50c756b31698" width="275" />
+  <img src="https://github.com/user-attachments/assets/248c6972-4578-457c-9108-50c756b31698" width="250" />
 
-  <img src="https://github.com/user-attachments/assets/8e424ad8-e848-4ded-b81c-6fb16fa4dd61" width="275" /> 
+  <img src="https://github.com/user-attachments/assets/8e424ad8-e848-4ded-b81c-6fb16fa4dd61" width="250" /> 
 
-  <img src="https://github.com/user-attachments/assets/89acac75-edd3-47c3-8ecf-11cdb2cf70c4" width="275" /> 
+  <img src="https://github.com/user-attachments/assets/89acac75-edd3-47c3-8ecf-11cdb2cf70c4" width="250" /> 
 
 </p>
 
