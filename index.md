@@ -13,7 +13,7 @@ You should comment out all portions of your portfolio that you have not complete
 <iframe width="560" height="315" src="https://www.youtube.com/embed/prqU0wx1FoE?si=R8ZuYPn1hL16R7zK" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 # Description
-For modifications and my last milestone, I added a vibration motor, soldered all my wires to the pcb, and finally sewed or velcro taped everything to my wrist compression band. The vibration motor was to alert my wrist of bad posture when none of the serial processes were running. Sort of like a "stealth mode" to ensure that my wrist would stay out of the bad range. I added the thresholds to the vibration motor for pitch. I tried doing some more specific thresholds with the roll values, but I decided to keep it simple with just the pitch. Since all values that come out from out of the accelerometer are relative to its position, the vibration motor kept vibrating if I moved my arm, not just my wrist. So, I decided to just to the pitch data. Soldering wires were relatively straightforward, with minor complications. 
+For modifications and my last milestone, I added a vibration motor, soldered all my wires to the pcb, and finally sewed or velcro taped everything to my wrist compression band. The vibration motor was to alert my wrist of bad posture when none of the serial processes were running. Sort of like a "stealth mode" to ensure that my wrist would stay out of the bad range. So in the code, when none of the other processes were running, the vibration motor would be turned on (refer to Milestone 4 Modification Code, Appendix). I added the thresholds to the vibration motor for pitch. I tried doing some more specific thresholds with the roll values, but I decided to keep it simple with just the pitch. Since all values that come out from out of the accelerometer are relative to its position, the vibration motor kept vibrating if I moved my arm, not just my wrist. So, I decided to just to the pitch data. Soldering wires were relatively straightforward, with minor complications. 
 The only component that I had to sew to the wrist compression band was the esp32. Because of all the pins, I sewed it upside down as pins poking into my skin would be quite uncomfortable while exercising. For the flex sensor, neopixel strip, and the actual pcb board, I used velcro tape to secure it onto the wrist band.
 
 # Challeneges
@@ -801,6 +801,316 @@ if (endcount) {                                         //if endcount is set to 
 void resetStrip() {
   strip.clear();
   strip.show();
+  sequenceRunning = false;
+  currentPixel = 0;
+}
+```
+# Milestone 4 Modification Code
+```c++
+#include <Wire.h>                   //I2C library
+#include <Adafruit_LSM6DS3TRC.h>    //accelerometer and gyroscope library
+#include <Adafruit_LIS3MDL.h>       //magnometer library
+#include <MadgwickAHRS.h>           //filter that converts accel and gyro into roll, pitch, and yaw
+#include <Adafruit_NeoPixel.h>      //neopixel led strip library
+#include <BleSerial.h>              //BLE serial library
+
+//Classes and Objects
+Adafruit_LSM6DS3TRC lsm6ds3trc;                           
+Adafruit_LIS3MDL lis3mdl = Adafruit_LIS3MDL();
+Madgwick filter;
+BleSerial BLE;
+
+//Neopixel Setup
+#define PIXEL_PIN      13
+#define NUMPIXELS      6
+#define FLEX_THRESHOLD 2300
+
+Adafruit_NeoPixel strip(NUMPIXELS, PIXEL_PIN, NEO_GRB + NEO_KHZ800);
+
+//Variables
+const float sampleFreq = 20.0;
+
+//ESP32 pins
+const int flexPin = A6;
+const int ledPin = 23;
+const int buzzer = 19;
+const int vibrationMotor = 12;
+
+//calibration variables
+unsigned long inRangeStart = 0;
+unsigned long repStart = 0;
+unsigned long lastActivityTime = 0;
+
+//booleans for user interface
+bool calibrated = false;
+bool waitingForDip = false;
+bool counting = false;
+bool sensorcount = false;
+bool showCalibration = false;
+bool endcount = false;
+bool flexWork = false;
+
+//neopixel variables
+bool sequenceRunning = false;
+unsigned long lastStepTime = 0;
+int currentPixel = 0;
+
+//repcount and setcount
+int repCount = 0;
+int setCount = 0;
+
+int prevRep;                                        //new variable to count only when reps or sets are updated
+
+void setup() {
+  Serial.begin(115200);                             //begin serial monitor at 115200 baud rate
+  delay(2000);                                      //2 second delay to ensure proper loading
+  
+  //These two are set as outputs
+  pinMode(buzzer, OUTPUT);
+  pinMode(vibrationMotor, OUTPUT);
+  
+  BLE.begin("Gauntlet of Wires");                                     //my serial name
+
+  if (!lsm6ds3trc.begin_I2C()) {
+    Serial.println("Failed to find LSM6DS3TR-C!");
+    while (1) delay(10);
+  }
+
+  if (!lis3mdl.begin_I2C()) {
+    Serial.println("Failed to find LIS3MDL!");
+    while (1) delay(10);
+  }
+
+  filter.begin(sampleFreq);
+
+  strip.begin();
+  strip.show();
+
+  BLE.println("Type 'menu' to see commands.");
+
+}
+
+void loop() {
+  int flexValue = analogRead(flexPin);
+  sensors_event_t accel, gyro, temp;
+  sensors_event_t mag;
+  lsm6ds3trc.getEvent(&accel, &gyro, &temp);
+  lis3mdl.getEvent(&mag);
+
+  //conversion measures
+  float gx = gyro.gyro.x * 180.0 / PI;
+  float gy = gyro.gyro.y * 180.0 / PI;
+  float gz = gyro.gyro.z * 180.0 / PI;
+  float ax = accel.acceleration.x / 9.80665;
+  float ay = accel.acceleration.y / 9.80665;
+  float az = accel.acceleration.z / 9.80665;
+
+  filter.update(gx, gy, gz, ax, ay, az, mag.magnetic.x, mag.magnetic.y, mag.magnetic.z);
+
+  float roll = filter.getRoll();                              
+  float pitch = -1 * filter.getPitch();                                //multiply by -1 to inverse the values
+
+  unsigned long currentTime = millis();                                
+
+  if (BLE.available()) {                                               //if there is a string available to read
+    String command = BLE.readStringUntil('\n');                        //read until new line
+
+    if (command.equals("menu") || command.equals("menu ")) {           //if this is the string, set other booleans to false
+      counting = false;   
+      showCalibration = false;
+      sensorcount = false;
+      endcount = false;
+
+      BLE.println("==== MENU ====");                                                                //menu display
+      BLE.println("List of available commands:");                                                   //below is the list of available commands
+      BLE.println("- calibrate       : Start calibration");                                         //print in BLE serial
+      BLE.println("- start workout   : Start tracking reps & sets");
+      BLE.println("- end workout     : Stop and show summary");
+      BLE.println("- show angle      : Show pitch and flex sensor");
+      BLE.println("- flex workout    : Start flex holds workout");
+    } else if (command.equals("calibrate") || command.equals("calibrate ")) {                       //two version of string to account for space on the end
+      showCalibration = true;                                                                       //sets corresponding boolean to true, and others to false
+      counting = false;
+      sensorcount = false;
+      endcount = false;
+      flexWork = false;
+    } else if (command.equals("start workout") || command.equals("start workout ")) {               //repeat for the following 
+      counting = true;
+      showCalibration = false;
+      sensorcount = false;
+      endcount = false;
+      flexWork = false;
+      repCount = 0;
+      setCount = 0;
+      prevRep = 0;
+
+      BLE.println("Workout Started");
+      BLE.println("reps: 0, sets: 0");
+    } else if (command.equals("end workout") || command.equals("end workout ")) {
+      endcount = true;
+      counting = false;
+      showCalibration = false;
+      sensorcount = false;
+      flexWork = false;
+    } else if (command.equals("show values") || command.equals("show values ")) {
+      sensorcount = true;
+      counting = false;
+      showCalibration = false;
+      endcount = false;
+      flexWork = false;
+    } else if (command.equals("flex workout") || command.equals("flex workout ")) {
+      flexWork = true;
+      sensorcount = false;
+      counting = false;
+      showCalibration = false;
+      endcount = false;
+
+      BLE.println("Started Flex Workout");
+      BLE.println("Bend Wrist and Hold");
+    }
+
+  }
+
+
+ 
+  if (showCalibration && !calibrated) {                                             //if showCalibration boolean is set to true, do this loop
+    if (pitch >= -2 && pitch <= 2) {                                                //range of the calibration zone
+      if (inRangeStart == 0) {                                                      //check if timer is at 0
+        inRangeStart = currentTime;                                                 //start timer
+      } else if (currentTime - inRangeStart >= 2500) {                              //calibration finished after 2.5 seconds in range
+        calibrated = true;
+        lastActivityTime = currentTime;
+        BLE.println("Calibration complete.");                                       //print this in BLE serial
+      }
+    } else {
+      inRangeStart = 0;
+    }
+    BLE.print(pitch);                                                               //print pitch value and calibration...
+    BLE.print(", ");
+    BLE.println("Calibrating...");
+  }
+
+  if (calibrated && (currentTime - lastActivityTime > 60000)) {                   //inactivity timeout
+    calibrated = false;                                                            //set bool and values back to false and 0
+    repCount = 0;
+    setCount = 0;
+    waitingForDip = false;
+    BLE.println("Inactivity timeout. Recalibrating...");
+  }
+
+  if (sensorcount) {                                                              //if sensorcount boolean is true, print these in BLE serial
+    
+    BLE.print("Pitch: ");
+    BLE.print(pitch, 2);
+    BLE.print(", Flex: ");
+    BLE.println(flexValue);
+    
+    
+    
+  }
+
+if (calibrated && counting) {                                                    //if the accelerometer is calibrated and counting bool is true, start the rep and set loops
+  if (!waitingForDip && pitch <= -40) {
+    repStart = currentTime;
+    waitingForDip = true;
+  }
+
+  if (waitingForDip) {
+    if (pitch >= 50 && (currentTime - repStart <= 1750)) {
+      repCount++;
+      waitingForDip = false;
+      lastActivityTime = currentTime;
+
+      if (repCount == 10) {
+        repCount = 0;
+        setCount++;
+      }
+    }
+
+    if (currentTime - repStart > 1750) {
+      waitingForDip = false;
+    }
+  }
+
+  if (repCount != prevRep) {                           //when the repCount is not equal to previous rep, update the count, and print these in BLE serial
+    BLE.print("reps: ");
+    BLE.print(repCount);
+    BLE.print(", sets: ");
+    BLE.println(setCount);
+    prevRep = repCount;
+  }
+}
+
+if (endcount) {                                         //if endcount is set to true
+  counting = false;                                     //counting is set to false
+
+  BLE.println("Workout Summary:");                      //print out the workout summary in BLE serial
+  BLE.print("Total reps: ");
+  BLE.println(repCount + (setCount * 10));              //total reps is the current repCount + (setCount times 10)
+  BLE.print("Total sets: ");
+  BLE.println(setCount);
+
+  endcount = false;                                     //set endcount to false so it only prints one time
+  setCount = 0;                                         //reset counts
+  repCount = 0;
+}
+
+if (flexWork) {
+  if (flexValue > FLEX_THRESHOLD && !sequenceRunning) {                         //if the flex value exceeds the threshold and sequence isnt running
+    sequenceRunning = true;                                                     //start the sequence
+    currentPixel = 0; 
+    lastStepTime = millis();                                                    //timer
+    strip.clear();                                                              
+  }
+
+  if (sequenceRunning) {                                                        //if the sequence is running
+    if (flexValue < FLEX_THRESHOLD) {                                           //if flex sensor value suddenly goes back down reset all lights 
+      resetStrip();
+    }
+
+    if (millis() - lastStepTime >= 500 && currentPixel < NUMPIXELS) {           //if it has been 0.5 seconds since the last light 
+      strip.setPixelColor(currentPixel, strip.Color(0, 0, 255));  // Blue       //set color to blue
+      strip.show();
+      currentPixel++;                                                           //move onto next light
+      lastStepTime = millis();                                                  //reset 0.5 second timer
+    } 
+
+    if (currentPixel == NUMPIXELS) {
+      strip.fill(strip.Color(0, 255, 0));  // Green                             //if all colors are filled, set all led colors to green 
+      strip.show();
+      BLE.println("Release");
+      BLE.println("good job");
+      delay(1000);                                                              //hold for 1 second before resetting
+      resetStrip();
+    }
+  }
+  if (flexValue > 2600) {                                           //if flex value exceeds threshold, turn on buzzer
+    digitalWrite(buzzer, HIGH);
+    BLE.println("too far! Please dont bend too far")
+  } else {
+    digitalWrite(buzzer, LOW);
+  }
+}
+
+if (!counting && !showCalibration && !sensorcount && !endcount && !flexWork) {      //if no processes are currently running
+  if (pitch <= -35 || pitch >= 48) {                                                //threshold for vibration motor
+    digitalWrite(vibrationMotor, HIGH);
+  } else {
+    digitalWrite(vibrationMotor, LOW);
+  }
+} else {
+  digitalWrite(vibrationMotor, LOW);  
+
+
+  delay(50);
+}
+
+}
+
+
+void resetStrip() {                         //created reset function
+  strip.clear();                            //clear led strip
+  strip.show();                             //get ready for next loop
   sequenceRunning = false;
   currentPixel = 0;
 }
