@@ -1,7 +1,5 @@
   # Wrist Rehab Monitor
 Wrist Rehab Monitor because my wrist got injured from badminton.
-You should comment out all portions of your portfolio that you have not completed yet, as well as any instructions:
-
 
 | **Engineer** | **School** | **Area of Interest** | **Grade** |
 |:--:|:--:|:--:|:--:|
