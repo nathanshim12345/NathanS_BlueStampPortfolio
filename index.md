@@ -16,7 +16,7 @@ For my modifications and final milestone, I added a vibration motor, soldered al
 
 <img width="1398" height="1056" alt="image" src="https://github.com/user-attachments/assets/e756b088-a63c-4ea7-9862-bd27f7247598" />
 
-Figure # - Vibration motor with forward and back motion to create vibrations
+Figure 1 - Vibration motor with forward and back motion to create vibrations
 
 
 # Challenges
@@ -39,7 +39,7 @@ The flex sensor functions seemed relatively empty compared to the accelerometer,
 NeoPixels are  LEDs that are individually addressable, meaning each one contains a tiny circuit with red, green, and blue LEDs, along with a driver chip. This allows each LED to be controlled independently in terms of color and brightness. The neopixel LEDS use a single digital pin on the microcontroller, which is enough to control the entire strip of LEDS. The microcontroller sends a stream of 24-bit data or 3 bytes for RGB, and each LED reads it before passing the rest down the line. This data transmission relies on precise timing, where the length of electrical pulses determines whether a bit is read as a 1 or a 0. Each LED decodes its information, updates its color, and then refreshes and passes on the data to the next LED, ensuring reliable communication across the entire LED strip.
 
 <img width="1000" height="450" alt="image" src="https://github.com/user-attachments/assets/07838909-788d-48a8-bc04-703fac3c1d3e" />
-Figure 3 - Neopixel LED diagram. The middle circle is the driver chip
+Figure 2 - Neopixel LED diagram. The middle circle is the driver chip
 
 ## Bluetooth User Interface
 
@@ -49,20 +49,20 @@ My first command was to display the menu when the string "menu" was typed into t
 
 <img width="750" height="1286" alt="image" src="https://github.com/user-attachments/assets/8b0c81da-26de-49e6-92a7-b0eb4b42a805" />
 
-Figure # - Menu display with new serial monitor. Available commands are shown under
+Figure 3 - Menu display with new serial monitor. Available commands are shown under
 
 # Challenges
 Some of the big challenges was creating the user interface and connecting the esp32 to the bluetooth. The concept was a little confusing at first, because of all the booleans and conditions. But after creating one condition for the calibrate function, I was able to create the rest of the conditions and start organizing my code into the specific conditions. Another obstacle I faced was how laggy my phone got when the rep and sets counter was printing. Due to how fast it was printing, it overloaded my serial monitor. So I decided to only print out the reps and sets if the rep or set count got updated. I created a new variable called prevRep. The idea was that I would set my repCount equal to the prevRep, and while this was true, my code wouldn't print out anything. But as soon as the repCount increased and was no longer equal to the prevRep value, the serial monitor would print the rep and set count once. The problem was I didn't know where to put my prevRep = repCount statement. After an hour of debugging, I finally realized that if I wanted my serial monitor to only print once, I would have to immediately set prevRep = repCount after the counts printed. So, I put the statement right after all the print functions, and the serial monitor finally printed out the counts only when they were updated. 
 
 <img width="750" height="1277" alt="image" src="https://github.com/user-attachments/assets/2f156c25-562d-437d-ae65-75be1e4a727c" />
 
-Figure # - New serial monitor with fixed counters
+Figure 4 - New serial monitor with fixed counters
 
 Another challenge I faced was that even when I typed the "end workout" command in my serial monitor, the display screen wouldn't pop up and the rep and set counts would keep going (this is before I fixed the counters to update only once). At first, I set the boolean that starts the counters to false within the loop that set my end workout boolean to true, but that didn't really do anything. And then I saw that my end workout loop was actually inside my loop that started the workout and counters. At the beginning of my void loop, the statements that turned on my boolean to true or false set one thing to true, and all others to false. Because my end workout loop was within my start workout counters loop, the end workout would always be set to false. So I moved the end workout loop outside of the start workout loop, and it was working. If I typed in "end workout" the display would stop showing the counters for the workout, and display the total number of reps and sets. 
 
 <img width="750" height="1294" alt="image" src="https://github.com/user-attachments/assets/8808be41-a3a8-4003-afe9-5da09255032d" />
 
-Figure # - New serial monitor with workout summary and fixed counters
+Figure 5 - New serial monitor with workout summary and fixed counters
 
 # Next Steps
 The next steps are to start putting all the components together, and solder the components onto a pcb. Also, I will start to add modifications to my wrist rehab monitor. I was thinking of adding a vibration component that vibrates if bad posture is detected. It will only vibrate if the other functions like the workout or calibration are not on.
@@ -81,19 +81,19 @@ Before working with LSM6DS3 + LIS3MD, I learned about how it worked. The LSM6DS3
 
 ![image](https://github.com/user-attachments/assets/acc4e815-edb2-49d7-b2e6-0d4a5cb08871)
 
-Figure# - Accelerometer diagram
+Figure 6 - Accelerometer diagram
 
 For the sake of not typing out "LSM6DS3+LIS3MDL" every single time, from now on I will just call it "accelerometer" or "module". For my second milestone, I first connected my accelerometer to my esp32. Then I downloaded a bunch of libraries for the module. It took a couple times because there were many codes for different versions of the accelerometer. But after finding the correct code off the library, I was able to upload the code and get my values for the accelerometer. The accelerometer had values x, y, and z, and it also had gyro data, which measured angular velocity. However, I didn't use gyro data as the movment of my wrist would be relatively slow, and velocity values wouldn't have varied enough in movement for me to use them. When I rotate the accelerometer in a certain way, the values change. When stationary, the z value always hovers at around 9.8 m/s^2 due to gravity.
 
 ![image](https://github.com/user-attachments/assets/499fa274-1a19-4c1f-aa17-6cb33e9ccb12)
 
-Figure# - Accelerometer data
+Figure 7 - Accelerometer data
 
 I originally planned on using these values to put a threshold on them and also make the LED and piezo buzzer. However, when I put the accelerometer on my wrist, I realized that the accelerometer values had minimal change when I moved my wrist side to side. Accelerometer values weren't going to work for my side to side motion on the wrist. So, I downloaded the Madgwick filter from the library, and took a code off of it. This Madgwick filter code changed my acceleration x,y and z data into roll, pitch, and yaw data. Roll, pitch, and yaw are usually used for aviation (see figure below). 
 
 ![image](https://github.com/user-attachments/assets/1c562fa3-2452-40d5-8d3b-734b37a9df4b)
 
-Figure# - Roll, pitch, and yaw diagram
+Figure 8 - Roll, pitch, and yaw diagram
 
 For my side to side motion, yaw was the perfect fit as it calculated the angles when I rotated my wrist. At the stable position with the accelerometer facing straight, the angle measured 360 degrees. I wanted my side to side movement to trigger the buzzer and LED after a certain angle that my wrist went past. So I first set two thresholds, one when my wrist went right and the other for when my wrist went left. I set my first value at 40 deg to the left, and 340 deg for the right, which is 20 deg off from center position. When my wrist angle went past these certain angles, the LED would turn on and the buzzer would beep. One thing to note was that my data values for yaw were drifting heavily; the values were constantly decreasing even without any movement on the accelerometer. Realizing that there would always be some drifting on my yaw values, completely scratched the idea of having thresholds on my yaw values. 
 
@@ -106,7 +106,7 @@ I wanted a way to keep track of each repition that went above 20 deg and below -
 Since measuring data or finding thresholds while the wrist was unstable or when it was moving too much is not reliable, I added a calibration system to the wrist rehab monitor. I wanted the pitch to be relatively close to 0 when starting the exercises, so I put the calibration range to -2 to 2 degrees. If the wrist was in this position for pitch, I considered it safe enough to start exercising. I also put a time requierment of 3 seconds. The pitch data had to be at -2 to 2 for at least 3 seconds before the calibration process was complete. While it wasn't calibrated, the serial monitor prints out "Calibrating...", and when after the 3 seconds of calibration, the serial monitor starts printing the repCount and setCounts. 
 
 # Challenges
-A big challenge that I faced in this milestone is that my yaw values kept on drifting, even in the stationary position. At first I thought this was because of the built in compass. The accelerometer module calculates yaw using the built in compass and magnometer. However, in a room full of magnetically conductive materials, these calculations may have been distorted. So in my code, I told arduino to not use the compass, in hopes that the yaw data would stop drifting. After doing some research, I learned that no matter what, due to certain limitations within the sensor or environment, there would always be some drift in yaw values. The only real way to fix it was to press the reboot button on my esp32 So, I repurposed my accelerometer and made it so it didn't use yaw. Also because I realized that I wouldn't really be moving my wrist from side to side. Another challenge that I faced was incorrect graph readings. When I first printed my data values for roll and pitch, I didn't use csv, and the words "roll" and "pitch" were also printed. This lead to unstable graphs, and only one line of value, instead of two for roll and pitch (see figure# below). So, I altered the print lines in the code to only print numerical values, seperated by commas. This time when I made the graph, it had two lines for roll and pitch, but it was very unstable. So I altered my code again. This time, I created a loop that took the average of 5 readings for roll and pitch, then gave me the value of the averages (see Milstone 2 Average code, Appendix). While this graph did look more stable, the lables on the y axis didn't make sense, as the values were too small to be averages. When I rotated my wrist, I was making big angular changes in position. Since roll and pitch measure angles, there should have been pretty big spacing on the y axis. So, I also scratched this code. I went back to my first problem, when my graph was unstable. I changed the sample frequency to 20 milliseconds, and the delay time to 50 milliseconds. The delay time (50) times the sample frequency (20) was 1000 milliseconds, which made for a more stable graph. Now the angle readings were also correct. Every time I completed a rotation, the values would spike at a consistent height. 
+A big challenge that I faced in this milestone is that my yaw values kept on drifting, even in the stationary position. At first I thought this was because of the built in compass. The accelerometer module calculates yaw using the built in compass and magnometer. However, in a room full of magnetically conductive materials, these calculations may have been distorted. So in my code, I told arduino to not use the compass, in hopes that the yaw data would stop drifting. After doing some research, I learned that no matter what, due to certain limitations within the sensor or environment, there would always be some drift in yaw values. The only real way to fix it was to press the reboot button on my esp32 So, I repurposed my accelerometer and made it so it didn't use yaw. Also because I realized that I wouldn't really be moving my wrist from side to side. Another challenge that I faced was incorrect graph readings. When I first printed my data values for roll and pitch, I didn't use csv, and the words "roll" and "pitch" were also printed. This lead to unstable graphs, and only one line of value, instead of two for roll and pitch (see figure 9 below). So, I altered the print lines in the code to only print numerical values, seperated by commas. This time when I made the graph, it had two lines for roll and pitch, but it was very unstable. So I altered my code again. This time, I created a loop that took the average of 5 readings for roll and pitch, then gave me the value of the averages (see Milstone 2 Average code, Appendix). While this graph did look more stable, the lables on the y axis didn't make sense, as the values were too small to be averages. When I rotated my wrist, I was making big angular changes in position. Since roll and pitch measure angles, there should have been pretty big spacing on the y axis. So, I also scratched this code. I went back to my first problem, when my graph was unstable. I changed the sample frequency to 20 milliseconds, and the delay time to 50 milliseconds. The delay time (50) times the sample frequency (20) was 1000 milliseconds, which made for a more stable graph. Now the angle readings were also correct. Every time I completed a rotation, the values would spike at a consistent height. 
 
 
 
@@ -119,7 +119,7 @@ A big challenge that I faced in this milestone is that my yaw values kept on dri
 
 </p>
 
-Figure# - Graphs of roll and pitch, with time on the x axis and roll and pitch angles on the y axis
+Figure 9 - Graphs of roll and pitch, with time on the x axis and roll and pitch angles on the y axis
 
 Graph 1 - First unstable graph WITHOUT csv
 
@@ -145,20 +145,20 @@ As a part of my first milestone and learning experience, I decided to make a min
 
 ![Headstone Image](Adobe Express - file.jpg)
 
-Figure# - Traffic light arduino project
+Figure 10 - Traffic light arduino project
 
 My first milestone was to connect the flex sensor to the esp32 (main controlling unit), and also add threshold values. The code I'd have to make is that when the threshold is exceeded by bending the sensor, the LED and piezo buzzer that I connected would beep and turn on. The flex sensor is a big resistor, and bending it to a certain degree changes the resistance values. Conductive ink sits on the top of the flex sensor, and when it is bent, the ink outside of the bend is stretched, leading to increased resistance. This is what changed the actual number values that were output by the sensor (see figure below). I printed these flex sensor values to find my threshold for the LED and buzzer. When the flex sensor is straight, it outputs a value of 1800, and when bent to a certain degree, the number increases or decreases. Since I planned to use the flex sensor for detecting bend in only one direction, I only need one threshold. I set my LED and buzzer threshold at 2400. The code sets the LED and buzzer to HIGH once the flex sensor threshold is exceeded, turning them on, otherwise, they are both set to LOW. I used analog read because the flex sensor is connected to pinA6 on the esp32, which is an analog pin. When the sensor bends, the resistance changes, so voltage at the analog pin changes, and the analog read reads the data values (see code below, Milestone 1 code, Appendix). 
 
 ![image](https://github.com/user-attachments/assets/8f77114c-049b-442f-a3d8-8aeb1de83724)
 
-Figure# - Flex sensor diagram
+Figure 11 - Flex sensor diagram
 
 ## Piezo Buzzer
 The piezo buzzer has a piezoelectric ceramic disk inside of it. Piezoelectric materials, such as the disk, produce physical deformation when an alternating voltage is applied to the buzzer, the ceramic disk rapidly expands and contracts. This movement pulls on the surrounding air and generates sound waves. The pitch and frequency of the buzzer is determined by how fast this ceramic disk is vibrating. Higher rates of vibration result in higher pitch and vice versa. 
 
 <img width="928" height="497" alt="image" src="https://github.com/user-attachments/assets/ba2b5717-38d6-4794-ab85-159a81cb174c" />
 
-Figure# - Diagram of the piezoelectric buzzer
+Figure 12 - Diagram of the piezoelectric buzzer
 
 # Challenges
 Some challenges that I faced were connecting things to the esp32 and the breadboard. The breadboard layout was confusing at first, as I didn't really understand how the electricity path flowed throughout the board. Another challenge was connecting the flex sensor. The flex sensor works off a voltage divider, which is a small circuit that that reduces voltage to a lower level, dividing input voltage into smaller outputs. I had to search some online schematics that showed me how to connect the flex sensor to the esp32. I also tried connecting the LSM6DS3+LIS3MDL (accel,gyro and magnometer), but I realized that I would also have to connect the codes and find more thresholds, so I saved that for the next milestone.
@@ -168,7 +168,7 @@ My next plan is to connect the accelerometer to my esp32, and also get the thres
 # Schematics 
 ![image](https://github.com/user-attachments/assets/50e9d166-e03b-494d-adb5-1d321a094b3b)
 
-Figure # - Flex sensor connected with led and buzzer to esp32
+Figure 13 - Flex sensor connected with led and buzzer to esp32
 
 # Bill of Materials
 
