@@ -69,7 +69,9 @@ The next steps are to start putting all the components together, and solder the 
 
 # Schematics
 
-<img width="867" height="563" alt="Screenshot 2025-07-15 at 9 56 20 AM" src="https://github.com/user-attachments/assets/4cfdf0cf-3267-40b4-a43c-aa6406b001ea" />
+<img width="1876" height="1118" alt="image" src="https://github.com/user-attachments/assets/dfa71983-4c92-40df-9754-0f6705596859" />
+
+Schematic - neopixel LED strips 
 
 # Second Milestone
 
@@ -133,7 +135,9 @@ Next, I will sew my accelerometer on my wrist compression sleeve so I don't have
 
 # Schematics
 
-<img width="946" height="543" alt="Screenshot 2025-07-15 at 9 56 31 AM" src="https://github.com/user-attachments/assets/c523b0ca-2f3f-4cf4-a101-7d74ced67101" />
+<img width="1860" height="1126" alt="image" src="https://github.com/user-attachments/assets/fb737cf1-7739-468c-bd5f-f68c5a16c724" />
+
+Schematic - accelerometer attached onto the breadboard
 
 # First Milestone
 
