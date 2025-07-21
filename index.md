@@ -1,5 +1,6 @@
 # Wrist Rehab Monitor
-Wrist Rehab Monitor because my wrist got injured from badminton.
+
+This is a wrist rehab monitor that uses sensors to track my wrist position. Using these sensors, I can do exercises with certain commands on my phone.
 
 | **Engineer** | **School** | **Area of Interest** | **Grade** |
 |:--:|:--:|:--:|:--:|
