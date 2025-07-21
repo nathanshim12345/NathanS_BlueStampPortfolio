@@ -1,11 +1,10 @@
-  # Wrist Rehab Monitor
+# Wrist Rehab Monitor
 Wrist Rehab Monitor because my wrist got injured from badminton.
 
 | **Engineer** | **School** | **Area of Interest** | **Grade** |
 |:--:|:--:|:--:|:--:|
 | Nathan S | Gunn High | Mechanical Engineering | Incoming Sophomore
 
-**Replace the BlueStamp logo below with an image of yourself and your completed project. Follow the guide [here](https://tomcam.github.io/least-github-pages/adding-images-github-pages-site.html) if you need help.**
 
 # Modifications and Milestone 4
 <iframe width="560" height="315" src="https://www.youtube.com/embed/prqU0wx1FoE?si=R8ZuYPn1hL16R7zK" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
