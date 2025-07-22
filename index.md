@@ -585,7 +585,7 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   pinMode(buzzer, OUTPUT);
   
-  BLE.begin("Nathans Servant");                                                       //my serial name
+  BLE.begin("Gauntlet of Wires");                                                       //my serial name
 
   if (!lsm6ds3trc.begin_I2C()) {
     Serial.println("Failed to find LSM6DS3TR-C!");
