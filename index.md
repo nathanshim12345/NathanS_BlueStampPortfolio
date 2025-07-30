@@ -2,9 +2,9 @@
 
 This is a wrist rehab monitor that uses sensors such as the flex sensor to track wrist movement and posture. It connects to your phone using Bluetooth, where you can send commands to start different types of exercises. The device gives feedback using lights, sound, and vibration to help maintain proper form during rehab.
 
-| **Engineer** | **School** | **Area of Interest** | **Grade** |
+| **Engineer** | **School** | **Grade** |
 |:--:|:--:|:--:|:--:|
-| Nathan S | Gunn High | Mechanical Engineering | Incoming Sophomore
+| Nathan S | Gunn High | Incoming Sophomore
 
 
 # Modifications and Milestone 4
