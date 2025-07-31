@@ -2,9 +2,10 @@
 
 This is a wrist rehab monitor that uses sensors such as the flex sensor to track wrist movement and posture. It connects to your phone using Bluetooth, where you can send commands to start different types of exercises. The device gives feedback using lights, sound, and vibration to help maintain proper form during rehab.
 
-| **Engineer** | **School** | **Grade** |
-|:——:|:——:|:——:|
-| Nathan S | Gunn High | Incoming Sophomore
+| **Engineer** | **School**   | **Grade**               |
+|:------------:|:------------:|:------------------------:|
+| Nathan S     | Gunn High    | Incoming Sophomore       |
+
 
 
 # Modifications and Milestone 4
@@ -1112,6 +1113,305 @@ if (!counting && !showCalibration && !sensorcount && !endcount && !flexWork) {  
 void resetStrip() {                         //created reset function
   strip.clear();                            //clear led strip
   strip.show();                             //get ready for next loop
+  sequenceRunning = false;
+  currentPixel = 0;
+}
+```
+# Final Code
+```c++
+#include <Wire.h>
+#include <Adafruit_LSM6DS3TRC.h>
+#include <Adafruit_LIS3MDL.h>
+#include <MadgwickAHRS.h>
+#include <Adafruit_NeoPixel.h>
+#include <BleSerial.h>
+
+Adafruit_LSM6DS3TRC lsm6ds3trc;
+Adafruit_LIS3MDL lis3mdl = Adafruit_LIS3MDL();
+Madgwick filter;
+BleSerial BLE;
+
+#define PIXEL_PIN      13
+#define NUMPIXELS      6
+#define FLEX_THRESHOLD 2300
+
+Adafruit_NeoPixel strip(NUMPIXELS, PIXEL_PIN, NEO_GRB + NEO_KHZ800);
+
+const float sampleFreq = 20.0;
+
+const int flexPin = A6;
+const int ledPin = 23;
+const int buzzer = 19;
+const int vibrationMotor = 12;
+
+unsigned long inRangeStart = 0;
+unsigned long repStart = 0;
+unsigned long lastActivityTime = 0;
+
+bool calibrated = false;
+bool waitingForDip = false;
+bool counting = false;
+bool sensorcount = false;
+bool showCalibration = false;
+bool endcount = false;
+bool flexWork = false;
+
+bool sequenceRunning = false;
+unsigned long lastStepTime = 0;
+int currentPixel = 0;
+
+int repCount = 0;
+int setCount = 0;
+int prevRep;
+
+float rollThreshold = 30.0;
+
+void setup() {
+  Serial.begin(115200);
+  delay(2000);
+
+  pinMode(buzzer, OUTPUT);
+  pinMode(vibrationMotor, OUTPUT);
+
+  BLE.begin("Gauntlet of Wires");
+
+  if (!lsm6ds3trc.begin_I2C()) {
+    Serial.println("Failed to find LSM6DS3TR-C!");
+    while (1) delay(10);
+  }
+
+  if (!lis3mdl.begin_I2C()) {
+    Serial.println("Failed to find LIS3MDL!");
+    while (1) delay(10);
+  }
+
+  filter.begin(sampleFreq);
+
+  strip.begin();
+  strip.show();
+
+  BLE.println("Type 'menu' to see commands.");
+}
+
+void loop() {
+  int flexValue = analogRead(flexPin);
+
+  sensors_event_t accel, gyro, temp;
+  sensors_event_t mag;
+  lsm6ds3trc.getEvent(&accel, &gyro, &temp);
+  lis3mdl.getEvent(&mag);
+
+  float gx = gyro.gyro.x * 180.0 / PI;
+  float gy = gyro.gyro.y * 180.0 / PI;
+  float gz = gyro.gyro.z * 180.0 / PI;
+  float ax = accel.acceleration.x / 9.80665;
+  float ay = accel.acceleration.y / 9.80665;
+  float az = accel.acceleration.z / 9.80665;
+
+  filter.update(gx, gy, gz, ax, ay, az, mag.magnetic.x, mag.magnetic.y, mag.magnetic.z);
+
+  float roll = filter.getRoll();
+  float pitch = -1 * filter.getPitch();
+  unsigned long currentTime = millis();
+
+  if (BLE.available()) {
+    String command = BLE.readStringUntil('\n');
+
+    if (command.equals("menu") || command.equals("menu ")) {
+      counting = false;
+      showCalibration = false;
+      sensorcount = false;
+      endcount = false;
+      flexWork = false;
+
+      BLE.println("==== MENU ====");
+      BLE.println("List of available commands:");
+      BLE.println("- calibrate       : Start calibration");
+      BLE.println("- start           : Start tracking reps & sets");
+      BLE.println("- end             : Stop and show summary");
+      BLE.println("- show values     : Show pitch and flex sensor");
+      BLE.println("- flex            : Start flex holds workout");
+
+    } else if (command.equals("calibrate") || command.equals("calibrate ")) {
+      showCalibration = true;
+      counting = false;
+      sensorcount = false;
+      endcount = false;
+      flexWork = false;
+
+    } else if (command.equals("start") || command.equals("start ")) {
+      counting = true;
+      showCalibration = false;
+      sensorcount = false;
+      endcount = false;
+      flexWork = false;
+      repCount = 0;
+      setCount = 0;
+      prevRep = 0;
+
+      BLE.println("Workout Started");
+      BLE.println("reps: 0, sets: 0");
+
+    } else if (command.equals("end") || command.equals("end ")) {
+      endcount = true;
+      counting = false;
+      showCalibration = false;
+      sensorcount = false;
+      flexWork = false;
+
+    } else if (command.equals("show values") || command.equals("show values ")) {
+      sensorcount = true;
+      counting = false;
+      showCalibration = false;
+      endcount = false;
+      flexWork = false;
+
+    } else if (command.equals("flex") || command.equals("flex ")) {
+      flexWork = true;
+      sensorcount = false;
+      counting = false;
+      showCalibration = false;
+      endcount = false;
+
+      BLE.println("Started Flex Workout");
+      BLE.println("Bend Wrist and Hold");
+    }
+  }
+
+  if (showCalibration && !calibrated) {
+    if (pitch >= -2 && pitch <= 2) {
+      if (inRangeStart == 0) {
+        inRangeStart = currentTime;
+      } else if (currentTime - inRangeStart >= 2500) {
+        calibrated = true;
+        lastActivityTime = currentTime;
+        BLE.println("Calibration complete.");
+      }
+    } else {
+      inRangeStart = 0;
+    }
+    BLE.print(pitch);
+    BLE.print(", ");
+    BLE.println("Calibrating...");
+  }
+
+  if (calibrated && (currentTime - lastActivityTime > 240000)) {
+    calibrated = false;
+    repCount = 0;
+    setCount = 0;
+    waitingForDip = false;
+    BLE.println("Inactivity timeout. Recalibrating...");
+  }
+
+  if (sensorcount) {
+    delay(200);
+    BLE.print("Pitch: ");
+    BLE.print(pitch, 2);
+    BLE.print(", Flex: ");
+    BLE.println(flexValue);
+  }
+
+  if (calibrated && counting) {
+    if (!waitingForDip && pitch <= -40) {
+      repStart = currentTime;
+      waitingForDip = true;
+    }
+
+    if (waitingForDip) {
+      if (pitch >= 50 && (currentTime - repStart <= 1750)) {
+        repCount++;
+        waitingForDip = false;
+        lastActivityTime = currentTime;
+
+        if (repCount == 10) {
+          repCount = 0;
+          setCount++;
+        }
+      }
+
+      if (currentTime - repStart > 1750) {
+        waitingForDip = false;
+      }
+    }
+
+    if (repCount != prevRep) {
+      BLE.print("reps: ");
+      BLE.print(repCount);
+      BLE.print(", sets: ");
+      BLE.println(setCount);
+      prevRep = repCount;
+    }
+  }
+
+  if (endcount) {
+    counting = false;
+
+    BLE.println("Workout Summary:");
+    BLE.print("Total reps: ");
+    BLE.println(repCount + (setCount * 10));
+    BLE.print("Total sets: ");
+    BLE.println(setCount);
+
+    endcount = false;
+    setCount = 0;
+    repCount = 0;
+  }
+
+  if (flexWork) {
+    if (flexValue > FLEX_THRESHOLD && !sequenceRunning) {
+      sequenceRunning = true;
+      currentPixel = 0;
+      lastStepTime = millis();
+      strip.clear();
+    }
+
+    if (sequenceRunning) {
+      if (flexValue < FLEX_THRESHOLD) {
+        resetStrip();
+      }
+
+      if (millis() - lastStepTime >= 500 && currentPixel < NUMPIXELS) {
+        strip.setPixelColor(currentPixel, strip.Color(0, 0, 255));
+        strip.show();
+        currentPixel++;
+        lastStepTime = millis();
+      }
+
+      if (currentPixel == NUMPIXELS) {
+        strip.fill(strip.Color(0, 255, 0));
+        strip.show();
+        delay(500);
+        BLE.println("Release");
+        delay(500);
+        BLE.println("good job");
+        delay(500);
+        resetStrip();
+      }
+    }
+
+    if (flexValue > 2600) {
+      digitalWrite(buzzer, HIGH);
+      BLE.println("Please dont bend too far");
+    } else {
+      digitalWrite(buzzer, LOW);
+    }
+  }
+
+  if (!counting && !showCalibration && !sensorcount && !endcount && !flexWork) {
+    if (pitch <= -35 || pitch >= 48) {
+      digitalWrite(vibrationMotor, HIGH);
+    } else {
+      digitalWrite(vibrationMotor, LOW);
+    }
+  } else {
+    digitalWrite(vibrationMotor, LOW);
+    delay(50);
+  }
+}
+
+void resetStrip() {
+  strip.clear();
+  strip.show();
   sequenceRunning = false;
   currentPixel = 0;
 }
